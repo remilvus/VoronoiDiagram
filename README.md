@@ -8,7 +8,7 @@
         
     RBTree:
         klucz: wsp. x środka komórki
-        dane:
+        dane: eventy związane z punktem
         
     VoronoiDiagram:
         ? 

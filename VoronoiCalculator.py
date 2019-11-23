@@ -220,6 +220,7 @@ class Voronoi:
         self.arc = None  # binary tree for parabola arcs
 
         self.events = PriorityQueue()
+        self.broom = RBTree()
 
         # bounding box
         self.x0 = 0.5
@@ -229,7 +230,7 @@ class Voronoi:
 
         # insert points to site event
         for (x, y) in points:
-            self.events.push(-y)
+            self.events.push((-y, Event(x=x, y=y, point_type=PointTypes.CELL)))
             # keep track of bounding box size
             if x < self.x0: self.x0 = x
             if y < self.y0: self.y0 = y
@@ -289,78 +290,113 @@ class Voronoi:
         else:
             return a
 
+    @staticmethod
+    def _segments_from_horizontal(line):
+        return [Voronoi._get_top_segment(line), Voronoi._get_mid_segment(line)]
+
     # calculates segment for voronoi
     def _process_line(self, line, cell):
-        if self.is_purely_vertical(line):
-            # TO DO
+        events = []
+        line_type = LineType.get_type(line)
+        if line_type == LineType.VERTICAL: #  only one segment
+            # TODO
             pass
-        elif self.is_purely_horizontal(line):
-            # TO DO
+        elif line_type == LineType.HORIZONTAL:
+            # TODO
             pass
-        elif self.is_partially_vertical(line):
+        elif line_type == LineType.VERTICAL_PART:
             # add top to voronoi
             line_top = self._get_top_segment(line)
             self.output.append(line_top)
             # add bot to events
             bot_point = self._get_bot_point(line)
-            bot_line = self.get_bot_line(line)
-            distance = self.metric.distance(line_bot[1], cell)
+            mid_segment = self._get_mid_segment(line)
+            dist = self.metric.distance(bot_point, cell)
+            event = Event(x=bot_point[0], y=bot_point[1], point_type=PointTypes.BEND, segment=mid_segment)
+            self.events.push((bot_point[1] - dist, event))
+
             pass
-        elif self.is_partially_horizontal(line):
-            # TO DO: add both to voronoi
+        elif line_type == LineType.HORIZONTAL_PART:
+            # add both to voronoi
+            for segment in self._segments_from_horizontal(line):
+                self.output.append(segment)
             pass
-        elif eqCase(line[0], line[1]):  # inclined line
-            # TO DO
+        elif line_type == LineType.INCLINED:
+            # TODO
             pass
         else:
             # should never occur
             raise AssertionError
+        return event
+    
+    def _cut_to_intersection(self, line, intersection, use_left):
+        # TODO 
+        pass
+
+    def _process_intersection(self, intersection, line_pred, line_succ):
+        unused_segments = []
+        for use_left, line in zip([True, False], [line_pred, line_succ]):
+            line = line.copy()
+            assert len(line) == 4  # not horizontal, vertical nor diagonal
+            unused, line = self._cut_to_intersection(line, intersection, use_left)
+            unused_segments.append(unused)
+            for segment in line:
+                self.output.append(segment)
+        event = Event(intersection[0], intersection[1], point_type=PointTypes.MID, segments=unused_segments)
+        # TODO make sure the middle point 
 
     def process_event(self):
         # get next event from circle pq
         event = self.event.pop()
-        broom = RBTree()
 
         if event.valid:
-            if event.type == PointTypes.CELL:
+            if event.point_type == PointTypes.CELL:
                 # push to broom
-                node = broom.findNode(event.x)
+                node = self.broom.findNode(event.x)
                 if node: # adding exactly below active cell point (rare)
+                    # TODO
                     pass
-                node = broom.insert(event.x)
-                node.value = (event.x, event.y)  # what else should be here?
+                node = self.broom.insert(event.x)
+                new_events = []  # node.value is set later with events
 
                 # get neighbours
-                pred = broom.predecessor(event.x)
-                succ = broom.successor(event.x)
+                pred = self.broom.predecessor(event.x)
+                succ = self.broom.successor(event.x)
 
                 # calculate bisectors
-                line_pred = self.metric.bisector(node.value, pred.value)
-                line_succ = self.metric.bisector(node.value, succ.value)
+                cell_point = (node.value.x, node.value.y)
+                pred_point = (pred.value.x, pred.value.y)
+                succ_point = (succ.value.x, succ.value.y)
+                line_pred = self.metric.bisector(cell_point, pred_point)
+                line_succ = self.metric.bisector(cell_point, succ_point)
                 # line format - ordered list of points starts from left (or bottom)
 
                 # calculate middle point (if it exists)
                 intersection = None
                 if line_pred and line_succ:
                     intersection = self.metric.getCross(line_pred, line_succ)
-
-                    # TO DO: KEY CALCULATION
-                    self.events.push("(-) KEY SHOULD BE HERE", Event(x=event.x, y=event.y, type=PointTypes.MID))
+                    key = self.metric(intersection, cell_point)
+                    self.events.push((-key, Event(x=event.x, y=event.y, point_type=PointTypes.MID)))
 
                 # add calculated points to Voronoi or events
                 if not intersection:
                     for line in [line_pred, line_succ]:
                         # adds points to events and voronoi
-                        self._process_line(line, self._get_lower_point(pred.value, succ.value))
-
+                        event = self._process_line(line, self._get_lower_point(pred.value, succ.value))
+                        if event:
+                            assert type(event) != list
+                            new_events.append[event]
                 else:  # there is intersection point
-                    # TO DO: add only points before the intersections (close to cell point)
-                    pass
-                # TO DO:  flag some events as invalid ???HOW TO FIND THEM???
-                pass
+                    # adds only points before the intersections (close to cell point)
+                    event = self._process_intersection(intersection, line_pred, line_succ)
+                    if event:
+                        new_events.append(event)
 
+                # TODO:  flag some events as invalid; use node.value.events
+
+                node.value = Cell(event.x, event.y, new_events)  # what else should be here?
             else: # bending/middle point
-                # TO DO
+                # TODO
                 pass
 
 

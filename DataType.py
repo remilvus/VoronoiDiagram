@@ -1,10 +1,44 @@
 import heapq
 import itertools
+from enum import Enum
 
-class PointTypes(enumerate):
+
+class PointTypes(Enum):
     CELL = 0
     BEND = 1
     MID = 2
+
+
+class LineType(Enum):
+    HORIZONTAL = 0
+    VERTICAL = 1
+    INCLINED = 2
+    HORIZONTAL_PART = 4  # line consisting of three segments (middle segment horizontal)
+    VERTICAL_PART = 5  # line consisting of three segments (middle segment vertical)
+
+    @staticmethod
+    def get_type(line):
+        if len(line) == 2:
+            if line[0][0] == line[1][0]:
+                return LineType.VERTICAL
+            if line[0][1] == line[1][1]:
+                return LineType.HORIZONTAL
+            return LineType.INCLINED
+        else:
+            if line[1][0] == line[2][0]:
+                return LineType.HORIZONTAL_PART
+            return LineType.VERTICAL_PART
+
+class Cell:
+    x = 0.0
+    y = 0.0
+    events = []
+
+    def __init__(self, x, y, events):
+        self.x = x
+        self.y = y
+        for e in events:
+            self.events.append(e)
 
 class Point: #May be useless
     x = 0.0
@@ -15,19 +49,21 @@ class Point: #May be useless
         self.y = y
 
 
-class Event: #y zamiast x
+class Event:
     y = 0.0
     x = 0.0
     type = None
     valid = True  # It its not useless
-    segment = None
+    segment = None  # for bending points
+    segments = None  # for middle points (3 cell intersection)
 
-    def __init__(self, x, y, type, segment=None):
+    def __init__(self, x, y, point_type, segment=None, segments=segments):
         self.x = x
         self.y = y
-        self.type = type
+        self.type = point_type
         self.valid = True
         self.segment = segment
+        self.segments = segments
 
 
 class Arc: #useless?
