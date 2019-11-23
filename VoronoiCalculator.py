@@ -6,7 +6,7 @@ from matplotlib.widgets import Button
 import json as js
 from DataType import *
 from queue import PriorityQueue
-
+from RBTree import *
 
 class Scene:
     def __init__(self, points=[], lines=[]):
@@ -256,7 +256,6 @@ class Voronoi:
 
         if event.valid:
             if event.type == PointTypes.CELL:
-                # CELL point
                 # push to broom
                 # calculate bisectors
                 # calculate middle point (if it exists)
@@ -264,7 +263,7 @@ class Voronoi:
                 # flag some events as invalid ???HOW TO FIND THEM???
                 pass
 
-            else: # bending point
+            else: # bending/middle point
                 pass
 
 
