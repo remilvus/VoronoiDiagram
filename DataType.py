@@ -2,8 +2,9 @@ import heapq
 import itertools
 
 class PointTypes(enumerate):
-    MID = 0
+    CELL = 0
     BEND = 1
+    MID = 2
 
 class Point: #May be useless
     x = 0.0
@@ -50,7 +51,7 @@ class Segment: #Nice
     done = False
 
     def __init__(self, p):
-        self.start = p
+        self.CELL = p
         self.end = None
         self.done = False
 
