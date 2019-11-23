@@ -22,4 +22,6 @@ def getLine(A, B):
         straightLine = [[(B[0]+A[0])/2, A[1] - (dx/2 - dy)], [(B[0]+A[0])/2, B[1] + (dx/2 - dy)]]
         print(straightLine)
 
+
+
 getLine([0,0],[8,3])
