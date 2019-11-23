@@ -4,9 +4,10 @@ import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 from matplotlib.widgets import Button
 import json as js
-from DataType import *
 from queue import PriorityQueue
+from DataType import *
 from RBTree import *
+from MaxMetric import *
 
 class Scene:
     def __init__(self, points=[], lines=[]):
@@ -228,7 +229,7 @@ class Voronoi:
 
         # insert points to site event
         for (x, y) in points:
-            self.events.push(-y, Event(x, y, PointTypes.CELL))
+            self.events.push(-y)
             # keep track of bounding box size
             if x < self.x0: self.x0 = x
             if y < self.y0: self.y0 = y
@@ -249,21 +250,68 @@ class Voronoi:
 
         self.finish_edges()
 
+    # calculates segment for voronoi
+    def _calculate_segment(self, inclination, point, left):
+        # TO DO
+        return None
 
     def process_event(self):
         # get next event from circle pq
         event = self.event.pop()
+        broom = RBTree()
 
         if event.valid:
             if event.type == PointTypes.CELL:
                 # push to broom
+                node = broom.findNode(event.x)
+                if node: # adding exactly below active cell point (rare)
+                    pass
+                node = broom.insert(event.x)
+                node.value = (event.x, event.y)  # what else should be here?
+
+                # get neighbours
+                pred = broom.predecessor(event.x)
+                succ = broom.successor(event.x)
+
                 # calculate bisectors
+                line_pred = getLine(node.value, pred.value)
+                line_succ = getLine(node.value, succ.value)
+                # line format = [[inclination],[first point],[second point],[inclination]]
+
                 # calculate middle point (if it exists)
+                intersection = None
+                if line_pred and line_succ:
+                    intersection = getCross(line_pred, line_succ)
+
+                    # TO DO: KEY CALCULATION
+                    self.events.push("(-) KEY SHOULD BE HERE", Event(x=event.x, y=event.y, type=PointTypes.MID))
+
                 # add calculated points to Voronoi or events
-                # flag some events as invalid ???HOW TO FIND THEM???
+                if not intersection:
+                    for line in [line_pred, line_succ]:
+                        if isXCase(line[1], line[2]):
+                            # TO DO: add top to voronoi
+                            assert line[1].y > line[2].y
+                            #self.output.append()
+                            # TO DO: add bot to events
+                            pass
+                        elif isYCase(line[1], line[2]):
+                            # TO DO: add both to voronoi
+                            pass
+                        elif eqCase(line[1], line[2]):  # inclined line
+                            # TO DO
+                            pass
+                        else:
+                            # should never occur
+                            raise AssertionError
+                else:  # there is intersection point
+                    # TO DO: add only points before the intersections (close to cell point)
+                    pass
+                # TO DO:  flag some events as invalid ???HOW TO FIND THEM???
                 pass
 
             else: # bending/middle point
+                # TO DO
                 pass
 
 

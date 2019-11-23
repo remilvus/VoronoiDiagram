@@ -3,6 +3,7 @@
 
 BLACK = 0
 RED = 1
+
 class RBNode(object):
     def __init__(self, key=None, value=None, color=RED):
         self.left = self.right = self.parent = None
@@ -10,13 +11,17 @@ class RBNode(object):
         self.key = key
         self.value = value
         self.nonzero = 1
+
     def __str__(self):
         return repr(self.key) + ': ' + repr(self.value)
+
     def __nonzero__(self):
         return self.nonzero
+
     def __len__(self):
         """imitate sequence"""
         return 2
+
     def __getitem__(self, index):
         """imitate sequence"""
         if index == 0:
@@ -24,16 +29,20 @@ class RBNode(object):
         if index == 1:
             return self.value
         raise IndexError('only key and value as sequence')
+
+
 class RBTreeIter(object):
     def __init__(self, tree):
         self.tree = tree
         self.index = -1  # ready to iterate on the next() call
         self.node = None
         self.stopped = False
+
     def __iter__(self):
         """ Return the current item in the container
         """
         return self.node.value
+
     def next(self):
         """ Return the next item in the container
             Once we go off the list we stay off even if the list changes
@@ -47,6 +56,8 @@ class RBTreeIter(object):
         else:
             self.node = self.tree.nextNode(self.node)
         return self.node.value
+
+
 class RBTree(object):
     def __init__(self, ):
         self.sentinel = RBNode()
@@ -55,8 +66,10 @@ class RBTree(object):
         self.sentinel.nonzero = 0
         self.root = self.sentinel
         self.count = 0
+
     def __len__(self):
         return self.count
+
     def __del__(self):
         # unlink the whole tree
         s = [self.root]
@@ -72,12 +85,16 @@ class RBTree(object):
                 s = s[1:]
         self.root = None
         self.sentinel = None
+
     def __str__(self):
         return "<RBTree object>"
+
     def __repr__(self):
         return "<RBTree object>"
+
     def __iter__(self):
         return RBTreeIter(self)
+
     def rotateLeft(self, x):
         y = x.right
         # establish x.right link
@@ -98,6 +115,7 @@ class RBTree(object):
         y.left = x
         if x != self.sentinel:
             x.parent = y
+
     def rotateRight(self, x):
         # ***************************
         #  rotate node x to right
@@ -121,6 +139,7 @@ class RBTree(object):
         y.right = x
         if x != self.sentinel:
             x.parent = y
+
     def insertFixup(self, x):
         # ************************************
         #  maintain Red-Black tree balance  *
@@ -165,6 +184,7 @@ class RBTree(object):
                     x.parent.parent.color = RED
                     self.rotateLeft(x.parent.parent)
         self.root.color = BLACK
+
     def insert(self, key):
         # **********************************************
         #  allocate node for data and insert in tree  *
@@ -199,6 +219,7 @@ class RBTree(object):
             self.root = x
         self.insertFixup(x)
         return x
+
     def deleteFixup(self, x):
         # ************************************
         #  maintain Red-Black tree balance  *
@@ -248,6 +269,7 @@ class RBTree(object):
                     self.rotateRight(x.parent)
                     x = self.root
         x.color = BLACK
+
     def deleteNode(self, z):
         # ****************************
         #  delete node z from tree  *
@@ -286,6 +308,7 @@ class RBTree(object):
             self.deleteFixup(x)
         del y
         self.count = self.count - 1
+
     def findNode(self, key):
         # ******************************
         #  find node containing data
@@ -304,9 +327,11 @@ class RBTree(object):
                 else:
                     current = current.right
         return None
+
     def remove(self, key):
         node = self.findNode(key)
         self.deleteNode(node)
+
     def traverseTree(self, f):
         if self.root == self.sentinel:
             return
@@ -326,13 +351,17 @@ class RBTree(object):
                 cur = cur.right
         # should not get here.
         return
+
     def nodesByTraversal(self):
         """return all nodes as a list"""
         result = []
+
         def traversalFn(x, K=result):
             K.append(x)
+
         self.traverseTree(traversalFn)
         return result
+
     def nodes(self):
         """return all nodes as a list"""
         cur = self.firstNode()
@@ -341,6 +370,7 @@ class RBTree(object):
             result.append(cur.key)
             cur = self.nextNode(cur)
         return result
+
     def minimum(self):
         cur = self.root
         if self.root is None:
@@ -348,6 +378,7 @@ class RBTree(object):
         while not cur.left is self.sentinel:
             cur = cur.left
         return cur.key
+
     def maximum(self):
         cur = self.root
         if self.root is None:
@@ -357,6 +388,7 @@ class RBTree(object):
             if cur is self.sentinel:
                 return None
         return cur.key
+
     def firstNode(self):
         cur = self.root
         if self.root is None:
@@ -364,6 +396,7 @@ class RBTree(object):
         while not cur.left is self.sentinel:
             cur = cur.left
         return cur
+
     def nextNode(self, prev):
         cur = prev
         if cur is None:
@@ -379,6 +412,7 @@ class RBTree(object):
                 return None
             if prev.key < cur.key or prev.key == cur.key:
                 return cur
+
     def successor(self, prev):
         """returns None if there isn't one"""
         prev = self.findNode(prev)
@@ -396,14 +430,13 @@ class RBTree(object):
                 return None
             if prev.key < cur.key or prev.key == cur.key:
                 return cur.key
+
     def predecessor(self, next):
         """returns None if there isn't one"""
         next = self.findNode(next)
         cur = next
         if cur is None:
             return None
-
-
 
         if not cur.left is self.sentinel:
             cur = next.left
