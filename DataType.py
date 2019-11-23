@@ -2,7 +2,7 @@ import heapq
 import itertools
 
 
-class Point:
+class Point: #May be useless
     x = 0.0
     y = 0.0
 
@@ -11,14 +11,14 @@ class Point:
         self.y = y
 
 
-class Event:
-    x = 0.0
-    p = None
+class Event: #y zamiast x
+    y = 0.0 #y
+    p = None #point
     a = None
-    valid = True
+    valid = True    
 
-    def __init__(self, x, p, a):
-        self.x = x
+    def __init__(self, y, p, a):
+        self.y = y
         self.p = p
         self.a = a
         self.valid = True
@@ -41,7 +41,7 @@ class Arc:
         self.s1 = None
 
 
-class Segment:
+class Segment: #Nice
     start = None
     end = None
     done = False
