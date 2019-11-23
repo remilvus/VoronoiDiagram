@@ -1,5 +1,17 @@
 # VoronoiDiagram
 
+# Struktury 
+    PriorityQueue:
+        klucz: y
+        dane: x, y, typ punktu (poczakowy/środkowy/zgięcie), valid (czy nadal ważny),
+              odpowiadające punktowi środki komórek?
+        
+    RBTree:
+        klucz: wsp. x środka komórki
+        dane:
+        
+    VoronoiDiagram:
+        ? 
 
 # metryka maximum <br>
   	max(|x1-x2|,|y1-y2|) 
