@@ -1,6 +1,9 @@
 import heapq
 import itertools
 
+class PointTypes(enumerate):
+    MID = 0
+    BEND = 1
 
 class Point: #May be useless
     x = 0.0
@@ -12,15 +15,15 @@ class Point: #May be useless
 
 
 class Event: #y zamiast x
-    y = 0.0 #y
-    p = None #point
-    a = None #Y=ax + b -> "a"
+    y = 0.0
+    x = 0.0
+    type = None
     valid = True #It its not useless
 
-    def __init__(self, y, p, a):
+    def __init__(self, x, y, type):
+        self.x = x
         self.y = y
-        self.p = p
-        self.a = a
+        self.type = type
         self.valid = True
 
 
