@@ -216,9 +216,12 @@ def Voronoi(points):
 def get_points():
     plot = Plot()
     plot.draw()
-    points = plot.get_added_points()
-    print(points)
+    points = plot.get_added_points()[0].points
+    points = np.array(points, dtype=np.float64)
+    idx = np.argsort(points[:, 1])
+    idx = np.flip(idx)
+    return points[idx, :]
 
-if __name__=="__main__":
-    get_points()
 
+if __name__ == "__main__":
+    points = get_points()
