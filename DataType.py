@@ -13,13 +13,13 @@ class Point: #May be useless
 
 class Event: #y zamiast x
     y = 0.0 #y
-    p = None #point
+    point = None #point
     a = None #Y=ax + b -> "a"
     valid = True #It its not useless
 
     def __init__(self, y, p, a):
         self.y = y
-        self.p = p
+        self.point = p
         self.a = a
         self.valid = True
 

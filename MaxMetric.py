@@ -26,7 +26,7 @@ def getLine(A, B):
         dy = C[1] - D[1]
         dx=max(dx,-dx)
         dy=max(dy,-dy)
-        straightLine = [[" 45 degrees Left"],[(D[0]+C[0])/2, C[1] - (dx/2 - dy)], [(D[0]+C[0])/2, D[1] + (dx/2 - dy)],["45 degrees Right"]]
+        straightLine = [[" 45 degrees Right"],[(D[0]+C[0])/2, C[1] - (dx/2 - dy)], [(D[0]+C[0])/2, D[1] + (dx/2 - dy)],["45 degrees Left"]]
         print(straightLine)
     elif(q):
         if (B[0] < A[0]): C, D = B, A
@@ -35,8 +35,11 @@ def getLine(A, B):
         dy = C[1] - D[1]
         dx=max(dx,-dx)
         dy=max(dy,-dy)
-        straightLine = [[" 45 degrees Right"],[ C[0] - (dy/2 - dx),(D[1]+C[1])/2], [D[0] + (dy/2 - dx),(D[1]+C[1])/2],["45 degrees Left"]]
+        straightLine = [[" 45 degrees Left"],[ C[0] - (dy/2 - dx),(D[1]+C[1])/2], [D[0] + (dy/2 - dx),(D[1]+C[1])/2],["45 degrees Right"]]
         print(straightLine)
+# def getPoints(A,B):
+#     temp=getLine(A,B)
+    # if(temp[0][1]==temp[1][1])
 
 
 getLine([0,0],[8,3])
