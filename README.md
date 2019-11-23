@@ -22,7 +22,10 @@
 			Oznaczamy jako do dodania i dodajemy do priorityQueue
 				z kluczem  najniższego położenia y należącego 
 				do jego kwardratu ("okręgu")
+			dodajemy punkty załamania
 			Punkty które nie powstaną oznaczamy jako do wywalenia
 		Jeśli punkt środkowy:
 			Dodajemy punkt do diagramu
 		
+	potencjalne problemy:
+		co jeśli punkt załamania jest punktem środkowym? 
