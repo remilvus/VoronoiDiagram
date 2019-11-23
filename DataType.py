@@ -15,7 +15,7 @@ class Event: #y zamiast x
     y = 0.0 #y
     p = None #point
     a = None #Y=ax + b -> "a"
-    valid = True
+    valid = True #It its not useless
 
     def __init__(self, y, p, a):
         self.y = y
@@ -24,7 +24,7 @@ class Event: #y zamiast x
         self.valid = True
 
 
-class Arc:
+class Arc: #useless?
     p = None
     pprev = None
     pnext = None
