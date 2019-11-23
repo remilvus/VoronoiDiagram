@@ -14,8 +14,8 @@ class Point: #May be useless
 class Event: #y zamiast x
     y = 0.0 #y
     p = None #point
-    a = None
-    valid = True    
+    a = None #Y=ax + b -> "a"
+    valid = True
 
     def __init__(self, y, p, a):
         self.y = y
