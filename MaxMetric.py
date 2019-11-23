@@ -18,8 +18,24 @@ def eqCase(A, B):
     dy = A[1] - B[1]
     return max(dy, -dy) == max(dx, -dx)
 
+def line_intersection(line1, line2):
+    xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+    ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
 
-def getLine(A, B):
+    def det(a, b):
+        return a[0] * b[1] - a[1] * b[0]
+
+    div = det(xdiff, ydiff)
+    if div == 0:
+        return False
+
+    d = (det(*line1), det(*line2))
+    x = det(d, xdiff) / div
+    y = det(d, ydiff) / div
+    return x, y
+
+
+def getLine(A, B): #Returns : [[a],[first_point],[second_point],[a]]
     d = distance(A, B)
     if (isXCase(A, B)): #X difference is greater
         if (B[1] < A[1]): C, D = B, A
@@ -29,8 +45,7 @@ def getLine(A, B):
         dx=max(dx,-dx)
         dy=max(dy,-dy)
         if(dy==0): straightLine=[[0],[(D[0]+C[0])/2, C[1] - (dx/2 - dy)], [(D[0]+C[0])/2, D[1] + (dx/2 - dy)],[0]]
-        else: straightLine = [[" 45 degrees Right"],[(D[0]+C[0])/2, C[1] - (dx/2 - dy)], [(D[0]+C[0])/2, D[1] + (dx/2 - dy)],["45 degrees Left"]]
-        print(straightLine)
+        else: straightLine = [[-1],[(D[0]+C[0])/2, C[1] - (dx/2 - dy)], [(D[0]+C[0])/2, D[1] + (dx/2 - dy)],[-1]]
     elif(isYCase(A, B)): #Y difference is greater
         if (B[0] < A[0]): C, D = B, A
         else: C, D=A, B
@@ -39,12 +54,18 @@ def getLine(A, B):
         dx=max(dx,-dx)
         dy=max(dy,-dy)
         if(dx==0): straightLine= [[0],[ C[0] - (dy/2 - dx),(D[1]+C[1])/2], [D[0] + (dy/2 - dx),(D[1]+C[1])/2],[0]]
-        else: straightLine = [[" 45 degrees Left"],[ C[0] - (dy/2 - dx),(D[1]+C[1])/2], [D[0] + (dy/2 - dx),(D[1]+C[1])/2],["45 degrees Right"]]
-        print(straightLine)
+        else: straightLine = [[1],[ C[0] - (dy/2 - dx),(D[1]+C[1])/2], [D[0] + (dy/2 - dx),(D[1]+C[1])/2],[1]]
     elif(eqCase(A,B)):
-        if ((B[0] > A[0] and B[1]> A[1])):
-            
-        straightLine=[[0]]
+        if ((B[0] > A[0] and B[1] > A[1])):
+            straightLine=[[-1], [A[0],B[1]],[B[0],A[1]],[-1]]
+        if ((B[0] < A[0] and B[1] < A[1])):
+            straightLine=[[-1], [B[0],A[1]],[A[0],B[1]],[-1]]
+        if ((B[0] < A[0] and B[1] > A[1])):
+            straightLine=[[1], [B[0],A[1]],[A[0],B[1]],[1]]
+        if ((B[0] > A[0] and B[1] < A[1])):
+            straightLine=[[1], [A[0],B[1]],[B[0],A[1]],[1]]
+    print(straightLine)
+    return straightLine
 
 def getPoints(A,B):
     output=[]
@@ -69,10 +90,11 @@ def getCross(segment1,segment2):
     #
     # elif(segment1[1][0] == segment1[2][0] and segment2[1][0] == segment2[2][0]):
     #     # Here if both X are equal
+    return 0
 
-    else:
-        print("Error exception found")
-        print("For ", segment1, "or",segment2,"not Xs nor Ys equals")
+    # else:
+    #     print("Error exception found")
+    #     print("For ", segment1, "or",segment2,"not Xs nor Ys equals")
 
 getLine([0,0],[8,3])
 getLine([0,0],[3,8])
