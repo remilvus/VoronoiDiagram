@@ -9,19 +9,36 @@ def isYCase(A, B):
     dy = A[1] - B[1]
     return max(dy, -dy) > max(dx, -dx)
 
+def isXCase(A, B):
+    dx = A[0] - B[0]
+    dy = A[1] - B[1]
+    return max(dy, -dy) < max(dx, -dx)
+
 
 def getLine(A, B):
     d = distance(A, B)
-    p = isYCase(A, B)
-    if (not p):
-        if (B[1] < A[1]): B, A = A, B
-        dx = A[0] - B[0]
-        dy = A[1] - B[1]
+    p = isXCase(A, B)
+    q = isYCase(A, B)
+    if (p):
+        if (B[1] < A[1]): C, D = B, A
+        else: C, D=A, B
+        dx = C[0] - D[0]
+        dy = C[1] - D[1]
         dx=max(dx,-dx)
         dy=max(dy,-dy)
-        straightLine = [[(B[0]+A[0])/2, A[1] - (dx/2 - dy)], [(B[0]+A[0])/2, B[1] + (dx/2 - dy)]]
+        straightLine = [[" 45 degrees Left"],[(D[0]+C[0])/2, C[1] - (dx/2 - dy)], [(D[0]+C[0])/2, D[1] + (dx/2 - dy)],["45 degrees Right"]]
+        print(straightLine)
+    elif(q):
+        if (B[0] < A[0]): C, D = B, A
+        else: C, D=A, B
+        dx = C[0] - D[0]
+        dy = C[1] - D[1]
+        dx=max(dx,-dx)
+        dy=max(dy,-dy)
+        straightLine = [[" 45 degrees Right"],[ C[0] - (dy/2 - dx),(D[1]+C[1])/2], [D[0] + (dy/2 - dx),(D[1]+C[1])/2],["45 degrees Left"]]
         print(straightLine)
 
 
-
 getLine([0,0],[8,3])
+getLine([0,0],[3,8])
+
