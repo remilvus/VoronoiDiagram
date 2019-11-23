@@ -250,10 +250,71 @@ class Voronoi:
 
         self.finish_edges()
 
+    @staticmethod
+    def _get_bot_segment(line):
+        if line[1][1] > line[2][1]:
+            return line[2:]
+        else:
+            return line[:2]
+
+    @staticmethod
+    def _get_mid_segment(line):
+        return line[1:3]
+
+    @staticmethod
+    def _get_top_segment(line):
+        if line[1][1] > line[2][1]:
+            return line[:2]
+        else:
+            return line[2:]
+
+    @staticmethod
+    def _get_top_point(line):
+        if line[1][1] > line[2][1]:
+            return line[1]
+        else:
+            return line[2]
+
+    @staticmethod
+    def _get_bot_point(line):
+        if line[1][1] > line[2][1]:
+            return line[2]
+        else:
+            return line[1]
+
+    @staticmethod
+    def _get_lower_point(a, b):
+        if a[1] > b[1]:
+            return b
+        else:
+            return a
+
     # calculates segment for voronoi
-    def _calculate_segment(self, inclination, point, left):
-        # TO DO
-        return None
+    def _process_line(self, line, cell):
+        if self.is_purely_vertical(line):
+            # TO DO
+            pass
+        elif self.is_purely_horizontal(line):
+            # TO DO
+            pass
+        elif self.is_partially_vertical(line):
+            # add top to voronoi
+            line_top = self._get_top_segment(line)
+            self.output.append(line_top)
+            # add bot to events
+            bot_point = self._get_bot_point(line)
+            bot_line = self.get_bot_line(line)
+            distance = self.metric.distance(line_bot[1], cell)
+            pass
+        elif self.is_partially_horizontal(line):
+            # TO DO: add both to voronoi
+            pass
+        elif eqCase(line[0], line[1]):  # inclined line
+            # TO DO
+            pass
+        else:
+            # should never occur
+            raise AssertionError
 
     def process_event(self):
         # get next event from circle pq
@@ -274,14 +335,14 @@ class Voronoi:
                 succ = broom.successor(event.x)
 
                 # calculate bisectors
-                line_pred = getLine(node.value, pred.value)
-                line_succ = getLine(node.value, succ.value)
-                # line format = [[inclination],[first point],[second point],[inclination]]
+                line_pred = self.metric.bisector(node.value, pred.value)
+                line_succ = self.metric.bisector(node.value, succ.value)
+                # line format - ordered list of points starts from left (or bottom)
 
                 # calculate middle point (if it exists)
                 intersection = None
                 if line_pred and line_succ:
-                    intersection = getCross(line_pred, line_succ)
+                    intersection = self.metric.getCross(line_pred, line_succ)
 
                     # TO DO: KEY CALCULATION
                     self.events.push("(-) KEY SHOULD BE HERE", Event(x=event.x, y=event.y, type=PointTypes.MID))
@@ -289,21 +350,9 @@ class Voronoi:
                 # add calculated points to Voronoi or events
                 if not intersection:
                     for line in [line_pred, line_succ]:
-                        if isXCase(line[1], line[2]):
-                            # TO DO: add top to voronoi
-                            assert line[1].y > line[2].y
-                            #self.output.append()
-                            # TO DO: add bot to events
-                            pass
-                        elif isYCase(line[1], line[2]):
-                            # TO DO: add both to voronoi
-                            pass
-                        elif eqCase(line[1], line[2]):  # inclined line
-                            # TO DO
-                            pass
-                        else:
-                            # should never occur
-                            raise AssertionError
+                        # adds points to events and voronoi
+                        self._process_line(line, self._get_lower_point(pred.value, succ.value))
+
                 else:  # there is intersection point
                     # TO DO: add only points before the intersections (close to cell point)
                     pass

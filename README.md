@@ -4,7 +4,7 @@
     PriorityQueue:
         klucz: y
         dane: x, y, typ punktu (poczakowy/środkowy/zgięcie), valid (czy nadal ważny),
-              odpowiadające punktowi środki komórek?
+              odcinek do dodania, odpowiadające punktowi środki komórek?
         
     RBTree:
         klucz: wsp. x środka komórki

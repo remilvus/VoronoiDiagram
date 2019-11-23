@@ -19,13 +19,15 @@ class Event: #y zamiast x
     y = 0.0
     x = 0.0
     type = None
-    valid = True #It its not useless
+    valid = True  # It its not useless
+    segment = None
 
-    def __init__(self, x, y, type):
+    def __init__(self, x, y, type, segment=None):
         self.x = x
         self.y = y
         self.type = type
         self.valid = True
+        self.segment = segment
 
 
 class Arc: #useless?
