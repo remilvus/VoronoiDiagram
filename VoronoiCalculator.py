@@ -218,8 +218,7 @@ class Voronoi:
         self.output = []  # list of line segment
         self.arc = None  # binary tree for parabola arcs
 
-        #self.points = PriorityQueue()  # site events
-        self.events = PriorityQueue()  # circle events
+        self.events = PriorityQueue()
 
         # bounding box
         self.x0 = 0.5
@@ -229,7 +228,7 @@ class Voronoi:
 
         # insert points to site event
         for (x, y) in points:
-            self.events.push(-y, Event(x, y, PointTypes.MID))
+            self.events.push(-y, Event(x, y, PointTypes.CELL))
             # keep track of bounding box size
             if x < self.x0: self.x0 = x
             if y < self.y0: self.y0 = y
@@ -256,15 +255,20 @@ class Voronoi:
         event = self.event.pop()
 
         if event.valid:
-            if event.type == PointTypes.MID:
-                # middle point
+            if event.type == PointTypes.CELL:
+                # CELL point
+                # push to broom
+                # calculate bisectors
+                # calculate middle point (if it exists)
+                # add calculated points to Voronoi or events
+                # flag some events as invalid ???HOW TO FIND THEM???
                 pass
 
             else: # bending point
                 pass
 
 
-            # start new edge
+            # CELL new edge
             s = Segment(e.p)
             self.output.append(s)
 
@@ -336,9 +340,9 @@ class Voronoi:
             # insert new segment between p and i
             x = self.x0
             y = (i.pnext.p.y + i.p.y) / 2.0;
-            start = Point(x, y)
+            CELL = Point(x, y)
 
-            seg = Segment(start)
+            seg = Segment(CELL)
             i.s1 = i.pnext.s0 = seg
             self.output.append(seg)
 
@@ -438,14 +442,14 @@ class Voronoi:
         it = 0
         for o in self.output:
             it = it + 1
-            p0 = o.start
+            p0 = o.CELL
             p1 = o.end
             print(p0.x, p0.y, p1.x, p1.y)
 
     def get_output(self):
         res = []
         for o in self.output:
-            p0 = o.start
+            p0 = o.CELL
             p1 = o.end
             res.append((p0.x, p0.y, p1.x, p1.y))
         return res
