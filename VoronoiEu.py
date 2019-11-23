@@ -57,37 +57,39 @@ class Voronoi:
         # add new arc (parabola)
         self.arc_insert(p)
 
-    def process_event(self):
+    def process_event(self): #NAMES!!! WHAT THE HELL DO THEY MEAN!!!
         # get next event from circle pq
-        e = self.event.pop()
+        event = self.event.pop() #e? Thats an event
 
-        if e.valid:
+        if event.valid:
             # start new edge
-            s = Segment(e.p)
-            self.output.append(s)
+            circleCenter = Segment(event.point)
+            self.output.append(circleCenter)
+
+
 
             # remove associated arc (parabola)
-            a = e.a
-            if a.pprev is not None:
-                a.pprev.pnext = a.pnext
-                a.pprev.s1 = s
-            if a.pnext is not None:
-                a.pnext.pprev = a.pprev
-                a.pnext.s0 = s
-
-            # finish the edges before and after a
-            if a.s0 is not None: a.s0.finish(e.p)
-            if a.s1 is not None: a.s1.finish(e.p)
-
-            # recheck circle events on either side of p
-            if a.pprev is not None: self.check_circle_event(a.pprev, e.x)
-            if a.pnext is not None: self.check_circle_event(a.pnext, e.x)
+            # a = event.a
+            # if a.pprev is not None:
+            #     a.pprev.pnext = a.pnext
+            #     a.pprev.s1 = circleCenter
+            # if a.pnext is not None:
+            #     a.pnext.pprev = a.pprev
+            #     a.pnext.s0 = circleCenter
+            #
+            # # finish the edges before and after a
+            # if a.s0 is not None: a.s0.finish(event.point)
+            # if a.s1 is not None: a.s1.finish(event.point)
+            #
+            # # recheck circle events on either side of point
+            # if a.pprev is not None: self.check_circle_event(a.pprev, event.x)
+            # if a.pnext is not None: self.check_circle_event(a.pnext, event.x)
 
     def arc_insert(self, p):
         if self.arc is None:
             self.arc = Arc(p)
         else:
-            # find the current arcs at p.y
+            # find the current arcs at point.y
             i = self.arc
             while i is not None:
                 flag, z = self.intersect(p, i)
@@ -101,7 +103,7 @@ class Voronoi:
                         i.pnext = Arc(i.p, i)
                     i.pnext.s1 = i.s1
 
-                    # add p between i and i.pnext
+                    # add point between i and i.pnext
                     i.pnext.pprev = Arc(p, i, i.pnext)
                     i.pnext = i.pnext.pprev
 
@@ -125,13 +127,13 @@ class Voronoi:
 
                 i = i.pnext
 
-            # if p never intersects an arc, append it to the list
+            # if point never intersects an arc, append it to the list
             i = self.arc
             while i.pnext is not None:
                 i = i.pnext
             i.pnext = Arc(p, i)
 
-            # insert new segment between p and i
+            # insert new segment between point and i
             x = self.x0
             y = (i.pnext.p.y + i.p.y) / 2.0;
             start = Point(x, y)
@@ -157,7 +159,7 @@ class Voronoi:
         # check if bc is a "right turn" from ab
         if ((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) > 0: return False, None, None
 
-        # Joseph O'Rourke, Computational Geometry in C (2nd ed.) p.189
+        # Joseph O'Rourke, Computational Geometry in C (2nd ed.) point.189
         A = b.x - a.x
         B = b.y - a.y
         C = c.x - a.x
@@ -179,7 +181,7 @@ class Voronoi:
         return True, x, o
 
     def intersect(self, p, i):
-        # check whether a new parabola at point p intersect with arc i
+        # check whether a new parabola at point point intersect with arc i
         if (i is None): return False, None
         if (i.p.x == p.x): return False, None
 
