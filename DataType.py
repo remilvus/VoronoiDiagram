@@ -7,6 +7,7 @@ class PointTypes(Enum):
     CELL = 0
     BEND = 1
     INTERSECTION = 2
+    BOUNDARY = 3
 
 
 class LineType(Enum):
@@ -69,8 +70,9 @@ class Event:
     right_cell = None
     left_cell = None
     segments = None  # line part which must be added
+    key = None
 
-    def __init__(self, x, y, point_type, right_cell=None, left_cell=None, segments=None):
+    def __init__(self, x, y, point_type, right_cell=None, left_cell=None, segments=None, key=None):
         self.x = x
         self.y = y
         self.type = point_type
@@ -78,6 +80,7 @@ class Event:
         self.right_cell = None
         self.left_cell = None
         self.segments = segments
+        self.key = key
 
 
 class Arc: #useless?
