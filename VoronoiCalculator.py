@@ -217,6 +217,8 @@ class _Button_callback(object):
 class Voronoi:
     def __init__(self, points):
         self.output = []  # list of line segment
+        self.scenes = []  # list of scenes for visualization
+        self.points = []  # for visualization
 
         self.events = PriorityQueue()
         self.active_cells = RBTree()
@@ -229,6 +231,7 @@ class Voronoi:
 
         # insert points to site event
         for (x, y) in points:
+            self.points.append((x, y))
             self.events.push((-y, Event(x=x, y=y, point_type=PointTypes.CELL)))
             # keep track of bounding box size
             if x < self.x0: self.x0 = x
@@ -244,9 +247,14 @@ class Voronoi:
         self.y0 = self.y0 - dy
         self.y1 = self.y1 + dy
 
+    def _make_scene(self):
+        points_collection = PointsCollection(self.points)
+        line_collection = LinesCollection(self.output.copy())
+        self.scenes.append(Scene([points_collection], [line_collection]))
+
     def process(self):
         while not self.events.empty():
-            event = event.get()
+            event = self.events.get()
             if event.valid:
                 if event.type == PointTypes.CELL:
                     self._process_cell(event)
@@ -254,10 +262,12 @@ class Voronoi:
                     self._process_bend(event)
                 elif event.type == PointTypes.INTERSECTION:
                     self._process_intersection(event)
-                else:
-                    print("UNIMPLEMENTED EVENT")  # for intersections with boundary?
+                else:  # boundary event
+                    self._process_bound(event)
+                self._make_scene()
                 
         self.finish_edges() # TODO check what it does; is it useless?
+        self._make_scene()
 
     @staticmethod
     def _get_bot_segment(line): # TODO probably delete
@@ -354,19 +364,78 @@ class Voronoi:
         return event
     
     def _cut_to_intersection(self, line, intersection, use_left):
-        # TODO 
-        pass
+        # ASSUMES LINES CONSISTING OF 4 SEGMENTS
+        # TODO make sure lines are in order from left to right
+        if use_left:
+            line = self._cut_line(line, intersection, line[0])
+        else:
+            line = self._cut_line(line, intersection, line[-1])
+        return line
 
-    def _process_intersection(self, intersection, line_pred, line_succ): # todo write from scratch
-        unused_segments = []
-        for use_left, line in zip([True, False], [line_pred, line_succ]):
-            line = line.copy()
-            assert len(line) == 4  # not horizontal, vertical nor diagonal
-            unused, line = self._cut_to_intersection(line, intersection, use_left)
-            unused_segments.append(unused)
-            for segment in line:
-                self.output.append(segment)
-        event = Event(intersection[0], intersection[1], point_type=PointTypes.MID, segments=unused_segments)
+    @staticmethod
+    def _cut_line(line, a, b):
+        line = line.copy()
+        if a[0] > b[0]:
+            a, b = b, a
+        elif a[0]==b[0]:
+            if a[1] > b[1]:
+                a, b = b, a
+        # "a" is on the left of or below b
+        line_type = LineType.get_type(line)
+        if line_type==LineType.HORIZONTAL_PART:
+            if a in line:
+                i = line.index(a)
+                line = line[i:]
+            else:
+                for i in range(len(line)-1):
+                    if line[i+1][0] > a[0]:
+                        line = line[i:]
+                        line[0] = a
+            if b in line:
+                i = line.index(b)
+                line = line[:(i+1)]
+            else:
+                for i in range(len(line) - 1):
+                    if line[i + 1][0] > b[0]:
+                        line = line[:(i+2)]
+                        line[-1] = b
+        elif line_type == LineType.VERTICAL_PART:
+            if a in line:
+                i = line.index(a)
+                line = line[i:]
+            else:
+                for i in range(len(line)-1):
+                    if line[i+1][1] > a[1]:
+                        line = line[i:]
+                        line[0] = a
+            if b in line:
+                i = line.index(b)
+                line = line[:(i+1)]
+            else:
+                for i in range(len(line) - 1):
+                    if line[i + 1][1] > b[1]:
+                        line = line[:(i+2)]
+                        line[-1] = b
+
+        return line
+
+    def _intersection_to_event(self, key, node, left_n, right_n, intersection):
+        self._invalidate_events(key, left_n, right_n)
+
+        # add intersection event
+        segments = self._get_line_part(start=left_n.right_point_used, end=intersection,
+                                       line=left_n.right_bisector)
+        event = Event(intersection[0], intersection[1], left_cell=left_n, right_cell=right_n,
+                      segments=segments, point_type=PointTypes.INTERSECTION, key=key)
+
+        self.events.push((-key, event))
+
+        # update info in tree nodes
+        left_n.right_point_used = intersection
+        right_n.left_point_used = intersection
+        node.left_point_used = intersection
+        node.right_point_used = intersection
+        node.left_event = node.right_event = event
 
     @staticmethod
     def _is_above(a, b):
@@ -397,25 +466,9 @@ class Voronoi:
         if line_right and line_left:
             intersection = self.metric.getCross(line_left, line_right)
 
-        if intersection: # TODO make function that does it
-            key = cell_point[1]  # cell point is on circle bottom (because its in between the other 2 points)
-            self._invalidate_events(key, left_n, right_n)
-
-            # add intersection event
-            segments = self._get_line_part(start=left_n.value.right_point_used, end=intersection,
-                                          line=left_n.value.right_bisector)
-            event = Event(intersection[0], intersection[1], left_cell=left_n.value, right_cell=right_n.value,
-                          segments=segments, point_type=PointTypes.INTERSECTION, key=key)
-
-            key += 1  # intersection point should be put into voronoi diagram as the next event
-            self.events.push((-key, event))
-
-            # update info in tree nodes
-            left_n.value.right_point_used = intersection
-            right_n.value.left_point_used = intersection
-            node.value.left_point_used = intersection
-            node.value.right_point_used = intersection
-            node.value.left_event = node.value.right_event = event
+        if intersection:
+            key = cell_point[1] # cell_point is on the bottom of circle -> the event will be processed next
+            self._intersection_to_event(key, node, left_n.value, right_n.value, intersection)
         else:  # there is none or one neighbour
             # TODO make function that does this part
             # TODO make sure it's not a possible situation if left and right neighbours exist
@@ -482,64 +535,88 @@ class Voronoi:
         for segment in event.segments:
             self.output.append(segment)
 
-        # TODO check for intersections with left bisector of left cell and right bisector of right cell
-        # if intersection
-        #   add intersection event
-        # else
-        #   add bend/boundary events
-    def process_event(self):
-        # get next event from circle pq
-        event = self.event.pop()
+        # get bisectors which intersect at this event
+        left_bisector = event.left_cell.right_bisector
+        right_bisector = event.right_cell.left_bisector
 
-        if event.valid:
-            if event.point_type == PointTypes.CELL:
-                # push to active_cells
-                node = self.active_cells.findNode(event.x)
-                if node: # adding exactly below active cell point (rare)
-                    # TODO
-                    pass
-                node = self.active_cells.insert(event.x)
-                new_events = []  # node.value is set later with events
+        mid_cell = self.active_cells.successor(event.left_cell.x)
 
-                # get neighbours
-                pred = self.active_cells.predecessor(event.x)
-                succ = self.active_cells.successor(event.x)
+        # TODO process intersection if mid_cell is on top
+        # now assuming mid_cell on bottom
+        
+        intersection = (event.x, event.y)
 
-                # calculate bisectors
-                cell_point = (node.value.x, node.value.y)
-                pred_point = (pred.value.x, pred.value.y)
-                succ_point = (succ.value.x, succ.value.y)
-                line_pred = self.metric.bisector(cell_point, pred_point)
-                line_succ = self.metric.bisector(cell_point, succ_point)
-                # line format - ordered list of points starts from left (or bottom)
+        for (line, is_left) in zip([left_bisector, right_bisector], [True, False]):
+            if LineType.get_type(line) == LineType.VERTICAL_PART:
+                segments = self._cut_line(line, intersection, self._get_top_point(line))
+                if len(segments) == 1: # add new bend event at intersection
+                    x, y = intersection
+                    key = y
+                else:
+                    if len(segments) == 3:
+                        top_point = self._get_top_point(line)
+                        segment = self._cut_line(line, intersection, top_point)[0]
+                        self.output.append(segment)
+                        segments = self._cut_to_intersection(line, top_point, use_left=is_left)
+                    x, y = self._get_bot_point(line)
+                    key = y
+    
+            if LineType.get_type(line) == LineType.HORIZONTAL_PART:
+                segments = self._cut_line(line, intersection, self._get_bot_point(line))
+                if len(segments) == 1: # add new bend event at intersection
+                    x, y = intersection
+                    key = y
+                else:
+                    x, y = self._get_bot_point(line)
+                    key = y
 
-                # calculate middle point (if it exists)
-                intersection = None
-                if line_pred and line_succ:
-                    intersection = self.metric.getCross(line_pred, line_succ)
-                    key = self.metric(intersection, cell_point)
-                    self.events.push((-key, Event(x=event.x, y=event.y, point_type=PointTypes.MID)))
+                if is_left:
+                    event = Event(x, y, point_type=PointTypes.Bend, right_cell=mid_cell, left_cell=event.left_cell,
+                            segments=segments, key=key)
+                else:
+                    event = Event(x, y, point_type=PointTypes.Bend, right_cell=event.right_cell, left_cell=mid_cell,
+                                  segments=segments, key=key)
+        self.events.push(-key, event)
 
-                # add calculated points to Voronoi or events
-                if not intersection:
-                    for line in [line_pred, line_succ]:
-                        # adds points to events and voronoi
-                        event = self._process_line(line, self._get_lower_point(pred.value, succ.value))
-                        if event:
-                            assert type(event) != list
-                            new_events.append[event]
-                else:  # there is intersection point
-                    # adds only points before the intersections (close to cell point)
-                    event = self._process_intersection(intersection, line_pred, line_succ)
-                    if event:
-                        new_events.append(event)
+        # todo if middle cell point is on circle top delete it from active cells
 
-                # TODO:  flag some events as invalid; use node.value.events
+    def _process_bend(self, event):  # from partially vertical bisector
+        for segment in event.segments:
+            self.output.append(segment)
 
-                node.value = Cell(event.x, event.y, new_events)  # what else should be here?
-            else: # bending/middle point
-                # TODO
+        line_left = event.left_cell.left_bisector
+        line_right = event.right_cell.right_bisector
+        event_line = event.left_cell.right_bisector
+
+        if line_left:
+            intersection = self.metric.getCross(line_left, event_line)
+            if intersection:
+                mid_cell = event.left_cell
+                left_cell = self.active_cells.predecessor(event.left_cell.x)
+                d = self.metric.distance(intersection, (mid_cell.x, mid_cell.y))
+                key = intersection[1] - d
+                self._intersection_to_event(key, mid_cell, left_cell.value, event.right_cell, intersection)
+            else:
+                # todo add bound event
                 pass
+        if line_right:
+            intersection = self.metric.getCross(line_left, event_line)
+            if intersection:
+                mid_cell = event.right_cell
+                right_cell = self.active_cells.successor(event.right_cell.x)
+                d = self.metric.distance(intersection, (mid_cell.x, mid_cell.y))
+                key = intersection[1] - d
+                self._intersection_to_event(key, mid_cell, event.left_cell, right_cell.value, intersection)
+            else:
+                # todo add bound event
+                pass
+
+    def _process_bound(self, event):
+        for segment in event.segments:
+            self.output.append(segment)
+
+        # TODO
+
 
 
 
@@ -570,6 +647,7 @@ class Voronoi:
             p1 = o.end
             res.append((p0.x, p0.y, p1.x, p1.y))
         return res
+
 def get_points():
     plot = Plot()
     plot.draw()
@@ -582,4 +660,6 @@ def get_points():
 
 if __name__ == "__main__":
     points = get_points()
-    
+    voronoi = Voronoi(points)
+    plot = Plot(voronoi.scenes)
+    plot.draw()
