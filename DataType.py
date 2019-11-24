@@ -6,7 +6,7 @@ from enum import Enum
 class PointTypes(Enum):
     CELL = 0
     BEND = 1
-    MID = 2
+    INTERSECTION = 2
 
 
 class LineType(Enum):
@@ -29,18 +29,30 @@ class LineType(Enum):
                 return LineType.HORIZONTAL_PART
             return LineType.VERTICAL_PART
 
+
 class Cell:
     x = 0.0
     y = 0.0
-    events = []
+    left_bisector = None
+    right_bisector = None
+    left_point_used = None
+    right_point_used = None
+    right_event = None
+    left_event = None
 
-    def __init__(self, x, y, events):
+    def __init__(self, x, y, left_bisector=None, right_bisector=None, left_point_used=None,
+                 right_point_used=None, right_event=None, left_event=None):
         self.x = x
         self.y = y
-        for e in events:
-            self.events.append(e)
+        self.left_bisector = left_bisector
+        self.right_bisector = right_bisector
+        self.left_point_used = left_point_used
+        self.right_point_used = right_point_used
+        self.right_event = right_event
+        self.left_event = left_event
 
-class Point: #May be useless
+
+class Point:  # May be useless
     x = 0.0
     y = 0.0
 
@@ -54,15 +66,17 @@ class Event:
     x = 0.0
     type = None
     valid = True  # It its not useless
-    segment = None  # for bending points
-    segments = None  # for middle points (3 cell intersection)
+    right_cell = None
+    left_cell = None
+    segments = None  # line part which must be added
 
-    def __init__(self, x, y, point_type, segment=None, segments=segments):
+    def __init__(self, x, y, point_type, right_cell=None, left_cell=None, segments=None):
         self.x = x
         self.y = y
         self.type = point_type
         self.valid = True
-        self.segment = segment
+        self.right_cell = None
+        self.left_cell = None
         self.segments = segments
 
 
