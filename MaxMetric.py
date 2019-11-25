@@ -1,10 +1,18 @@
-def distance(A, B):
-    dx = A[0] - B[0]
-    dy = A[1] - B[1]
-    return max(dx, -dx, dy, -dy)
+# def line_intersection(line1, line2):
+#     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+#     ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
 
+#     def det(a, b):
+#         return a[0] * b[1] - a[1] * b[0]
 
+#     div = det(xdiff, ydiff)
+#     if div == 0:
+#         return False
 
+#     d = (det(*line1), det(*line2))
+#     x = det(d, xdiff) / div
+#     y = det(d, ydiff) / div
+#     return x, y
 
 def line_intersection(line1, line2):
     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
@@ -22,92 +30,177 @@ def line_intersection(line1, line2):
     y = det(d, ydiff) / div
     return x, y
 
+# def perp( a ) :
+#     b = empty_like(a)
+#     b[0] = -a[1]
+#     b[1] = a[0]
+#     return b
 
-def isYCase(A, B): #Y difference is greater
-    dx = A[0] - B[0]
-    dy = A[1] - B[1]
-    return max(dy, -dy) > max(dx, -dx)
+# def line_intersection(line1, line2) :
+#     a1=np.array(line1[0])
+#     a2=np.array(line1[1])
+#     b1=np.array(line2[0])
+#     b2=np.array(line2[1])
+#     da = a2-a1
+#     db = b2-b1
+#     dp = a1-b1
+#     dap = perp(da)
+#     denom = dot( dap, db)
+#     if(denom==0):return False
+#     num = dot( dap, dp )
+#     return (num / denom.astype(float))*db + b1
 
-def isXCase(A, B): #X difference is greater
-    dx = A[0] - B[0]
-    dy = A[1] - B[1]
-    return max(dy, -dy) < max(dx, -dx)
-def eqCase(A, B):
-    dx = A[0] - B[0]
-    dy = A[1] - B[1]
-    return max(dy, -dy) == max(dx, -dx)
+# def ccw(A,B,C):
+#     return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
 
-
-# def getLine(A, B): #Returns : [[a],[first_point],[second_point],[a]]
-#     if (isXCase(A, B)): #X difference is greater
-#         if (B[1] < A[1]): C, D= B, A
-#         else: C, D=A, B
-#         if (D[0]>C[0]): p=-1
-#         else: p=1
-#         dx = C[0] - D[0]
-#         dy = C[1] - D[1]
-#         dx=max(dx,-dx)
-#         dy=max(dy,-dy)
-#         if(dy==0): straightLine=[[0],[(D[0]+C[0])/2, C[1] - (dx/2 - dy)], [(D[0]+C[0])/2, D[1] + (dx/2 - dy)],[0]]
-#         else: straightLine = [[p],[(D[0]+C[0])/2, C[1] - (dx/2 - dy)], [(D[0]+C[0])/2, D[1] + (dx/2 - dy)],[p]]
-#     elif(isYCase(A, B)): #Y difference is greater
-#         if (B[0] < A[0]): C, D = B, A
-#         else: C, D=A, B
-#         if (D[1]<C[1]): p=1
-#         else: p=-1
-#         dx = C[0] - D[0]
-#         dy = C[1] - D[1]
-#         dx=max(dx,-dx)
-#         dy=max(dy,-dy)
-#         if(dx==0): straightLine= [[0],[ C[0] - (dy/2 - dx),(D[1]+C[1])/2], [D[0] + (dy/2 - dx),(D[1]+C[1])/2],[0]]
-#         else: straightLine = [[p],[ C[0] - (dy/2 - dx),(D[1]+C[1])/2], [D[0] + (dy/2 - dx),(D[1]+C[1])/2],[p]]
-#     elif(eqCase(A,B)):
-#         if ((B[0] > A[0] and B[1] > A[1])):
-#             straightLine=[[-1], [A[0],B[1]],[B[0],A[1]],[-1]]
-#         if ((B[0] < A[0] and B[1] < A[1])):
-#             straightLine=[[-1], [B[0],A[1]],[A[0],B[1]],[-1]]
-#         if ((B[0] < A[0] and B[1] > A[1])):
-#             straightLine=[[1], [B[0],A[1]],[A[0],B[1]],[1]]
-#         if ((B[0] > A[0] and B[1] < A[1])):
-#             straightLine=[[1], [A[0],B[1]],[B[0],A[1]],[1]]
-#     print(straightLine)
-#     return straightLine
+# # Return true if line segments AB and CD intersect
+# def line_intersection(line1, line2):
+#     return ccw(line1[0],line2[0],line2[1]) != ccw(line1[1],line2[0],line2[1]) and ccw(line1[0],line1[1],line2[0]) != ccw(line1[0],line1[1],line2[1])
 
 
-# def getPoints(A,B):
-#     output=[]
-#     temp=getLine(A,B)
-#     if(temp[0][1]==temp[1][1]): return [temp[0], 1], [temp[1], 1]
-#     elif(temp[0][1]>temp[1][1]):
-#         return [temp[0], 1], [temp[1], 0]
-#     elif(temp[0][1]<temp[1][1]):
-#         return [temp[0], 0],[temp[1], 1]
 
-def getCross(segment1,segment2):
-    t = [[p[1], p[2]]]
-    t.append([[1 + p[2][0], p[2][1] + 1 * p[0]], p[2]])
-    s=line_intersection([segment1[1],
-    t.append([p[1], [p[1][0] - 1, p[1][1] - 1 * p[0]]])
-    if(segment1[1][1] == segment1[2][1] and segment2[1][1] == segment2[2][1]):
-        # Here if both Y are equal
-        cross=line_intersection([segment1[1], if(segment1[1][0]>segment1[1][0])
-        y1=segment1[1][1]
-        y2=segment2[1][1]
-    #
-    # elif(segment1[1][1] == segment1[2][1] and segment2[1][0] == segment2[2][0]):
-    #     # Here if 1st Y are equal and second X are equal
-    #
-    # elif(segment1[1][0] == segment1[2][0] and segment2[1][1] == segment2[2][1]):
-    #     # Here if 1st X are equal and secon Y are equal
-    #
-    # elif(segment1[1][0] == segment1[2][0] and segment2[1][0] == segment2[2][0]):
-    #     # Here if both X are equal
-    return 0
+# def line_intersection(L1, L2):
+#     D  = L1[0][0] * L2[0][1] - L1[0][1] * L2[0][0]
+#     Dx = L1[1][0] * L2[0][1] - L1[0][1] * L2[0][1]
+#     Dy = L1[0][0] * L2[1][0] - L1[1][0] * L2[0][0]
+#     if D != 0:
+#         x = Dx / D
+#         y = Dy / D
+#         return x,y
+#     else:
+#         return False
 
-    # else:
-    #     print("Error exception found")
-    #     print("For ", segment1, "or",segment2,"not Xs nor Ys equals")
+def findCross(line1, line2):
+    point = line_intersection(line1, line2)
+    if (point):
+        if (line1[0][0] <= point[0] <= line1[1][0]
+                and min(line1[0][1], line1[1][1]) <= point[1] <= max(line1[0][1], line1[1][1])
+                and line2[0][0] <= point[0] <= line2[1][0]
+                and min(line2[0][1], line2[1][1]) <= point[1] <= max(line2[0][1], line2[1][1])
+        ):
+#             print("Found it! ", point)
+            return point
+    return False  #Can it be False, or has it to be None...
 
-getLine([0,0],[8,3])
-getLine([0,0],[3,8])
 
+def leftEnd(point, p, rangeX, rangeY):
+    x, y = point[0], point[1]
+    if (p > 0):  # Jeżeli leci w dół
+        if (x - rangeX[0] < y - rangeY[0]):  # Jeżeli zdarzy się z X=0
+            dx = x - rangeX[0]
+            fx = rangeX[0]
+            fy = y - dx
+        else:  # Jeżeli się zdrzarzy, że Y=max
+            dy = y - rangeY[0]
+            fy = rangeY[0]
+            fx = x - dy
+    elif (p < 0):  # Jeżeli leci w górę
+        if (x - rangeX[0] < rangeY[1] - y):  # Zdarzy się x=0
+            dx = x - rangeX[0]
+            fx = rangeX[0]
+            fy = y + dx
+        else:  # Jeżeli zdarzy się, ze Y=0
+            dy = rangeY[1] - y
+            fy = rangeY[1]
+            fx = x - dy
+    else:
+        fy = y
+        fx = 0
+    return [fx, fy]
+
+
+def rightEnd(point, p, rangeX, rangeY):
+    x, y = point[0], point[1]
+    if (p < 0):  # Jeżeli leci w dół
+        if (rangeX[1] - x < y - rangeY[0]):  # Jeżeli zdarzy się z X=0
+            dx = rangeX[1] - x
+            fx = rangeX[1]
+            fy = y - dx
+        else:  # Jeżeli się zdrzarzy, że Y=max
+            dy = y - rangeY[0]
+            fy = rangeY[0]
+            fx = x + dy
+    elif (p > 0):  # Jeżeli leci w górę
+        if (rangeX[1] - x < rangeY[1] - y):  # Zdarzy się x=0
+            dx = rangeX[1] - x
+            fx = rangeX[1]
+            fy = y + dx
+        else:  # Jeżeli zdarzy się, ze Y=0
+            dy = rangeY[1] - y
+            fy = rangeY[1]
+            fx = x + dy
+    else:  # fine
+        fy = y
+        fx = 0
+    return [fx, fy]
+
+
+def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
+    dx = B[0] - A[0]
+    dy = B[1] - A[1]
+    dx = max(dx, -dx)
+    dy = max(dy, -dy)
+    if (dx > dy):
+        if A[0] > B[0]:
+            A[0], A[1], B[0], B[1] = B[0], B[1], A[0], A[1]
+        if (dy == 0):  # 1
+            return [[[(A[0] + B[0]) / 2, rangeY[0]], [(A[0] + B[0]) / 2, rangeY[1]]]]
+
+        elif A[1] < B[1]:  # 2
+            x = (B[0] + A[0]) / 2
+            y1 = B[1] + (dx / 2 - dy)
+            y2 = A[1] - (dx / 2 - dy)
+            leftPoint = leftEnd([x, y1], -1, rangeX, rangeY)
+            rightPoint = rightEnd([x, y2], -1, rangeX, rangeY)
+            return [[leftPoint, [x, y1]], [[x, y1], [x, y2]], [[x, y2], rightPoint]]
+        else:  # 3
+            x = (B[0] + A[0]) / 2
+            y1 = min(A[1], B[1])
+            y2 = max(A[1], B[1])
+            y2 += (dx / 2 - dy)
+            y1 -= (dx / 2 - dy)
+            leftPoint = leftEnd([x, y1], 1, rangeX, rangeY)
+            rightPoint = rightEnd([x, y2], 1, rangeX, rangeY)
+            return [[leftPoint, [x, y1]], [[x, y1], [x, y2]], [[x, y2], rightPoint]]
+    elif dy > dx:
+        if A[1] < B[1]:
+            A[0], A[1], B[0], B[1] = B[0], B[1], A[0], A[1]
+        if (dx == 0):
+            return [[[rangeX[0], (A[1] + B[1]) / 2], [rangeX[1], (A[1] + B[1]) / 2]]]
+        elif A[0] < B[0]:  # 4
+            y = (B[1] + A[1]) / 2
+            x2 = B[0] + (dy / 2 - dx)
+            x1 = A[0] - (dy / 2 - dx)
+            leftPoint = leftEnd([x1, y], -1, rangeX, rangeY)
+            rightPoint = rightEnd([x2, y], -1, rangeX, rangeY)
+            return [[leftPoint, [x1, y]], [[x1, y], [x2, y]], [[x2, y], rightPoint]]
+        else:
+            y = (B[1] + A[1]) / 2  # 5
+            x1 = B[0] - (dy / 2 - dx)
+            x2 = A[0] + (dy / 2 - dx)
+            leftPoint = leftEnd([x1, y], 1, rangeX, rangeY)
+            rightPoint = rightEnd([x2, y], 1, rangeX, rangeY)
+            return [[leftPoint, [x1, y]], [[x1, y], [x2, y]], [[x2, y], rightPoint]]
+    else:
+        if A[1] > B[1] and A[0] < B[0]:  # 6
+            x = (B[0] + A[0]) / 2
+            y = (B[1] + A[1]) / 2
+            leftPoint = leftEnd([x, y], 1, rangeX, rangeY)
+            rightPoint = rightEnd([x, y], 1, rangeX, rangeY)
+            return [[leftPoint, rightPoint]]
+        else:  # 7
+            x = (B[0] + A[0]) / 2
+            y = (B[1] + A[1]) / 2
+            leftPoint = leftEnd([x, y], -1, rangeX, rangeY)
+            rightPoint = rightEnd([x, y], -1, rangeX, rangeY)
+            return [[leftPoint, rightPoint]]
+
+
+def cross(bis1, bis2):
+    for each in bis1:
+        for i in bis2:
+#             print("trying to find cross for: ", each, i)
+            p = findCross(each, i)
+#             print("found ", p)
+            if p: return p
+    return False
