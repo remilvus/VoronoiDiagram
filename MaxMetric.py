@@ -70,6 +70,9 @@ def line_intersection(line1, line2):
 #     else:
 #         return False
 
+def distance(a, b):
+    return max(abs(a[0]-b[0], abs(a[1]-b[1])))
+
 def findCross(line1, line2):
     point = line_intersection(line1, line2)
     if (point):
@@ -134,8 +137,10 @@ def rightEnd(point, p, rangeX, rangeY):
         fx = 0
     return [fx, fy]
 
-
 def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
+    return bis_to_list(bisector_orginal(A, B, rangeX, rangeY))
+
+def bisector_orginal(A, B, rangeX=[0, 1], rangeY=[0, 1]):
     dx = B[0] - A[0]
     dy = B[1] - A[1]
     dx = max(dx, -dx)
@@ -197,10 +202,19 @@ def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
 
 
 def cross(bis1, bis2):
+    cross_original(list_to_bis(bis1), list_to_bis(bis2))
+
+def cross_original(bis1, bis2):
     for each in bis1:
         for i in bis2:
-#             print("trying to find cross for: ", each, i)
+            print("trying to find cross for: ", each, i)
             p = findCross(each, i)
-#             print("found ", p)
+            print("found ", p)
             if p: return p
     return False
+
+def bis_to_list(bis):
+    return [bis[0][0]] + [segment[1] for segment in bis]
+
+def list_to_bis(line):
+    return [[line[0], line[1]], [line[1], line[2]], [line[2], line[3]]]
