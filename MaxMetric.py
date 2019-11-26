@@ -1,18 +1,4 @@
-# def line_intersection(line1, line2):
-#     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
-#     ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
 
-#     def det(a, b):
-#         return a[0] * b[1] - a[1] * b[0]
-
-#     div = det(xdiff, ydiff)
-#     if div == 0:
-#         return False
-
-#     d = (det(*line1), det(*line2))
-#     x = det(d, xdiff) / div
-#     y = det(d, ydiff) / div
-#     return x, y
 
 def line_intersection(line1, line2):
     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
@@ -28,62 +14,32 @@ def line_intersection(line1, line2):
     d = (det(*line1), det(*line2))
     x = det(d, xdiff) / div
     y = det(d, ydiff) / div
+    print("what about", x, y)
     return x, y
 
-# def perp( a ) :
-#     b = empty_like(a)
-#     b[0] = -a[1]
-#     b[1] = a[0]
-#     return b
-
-# def line_intersection(line1, line2) :
-#     a1=np.array(line1[0])
-#     a2=np.array(line1[1])
-#     b1=np.array(line2[0])
-#     b2=np.array(line2[1])
-#     da = a2-a1
-#     db = b2-b1
-#     dp = a1-b1
-#     dap = perp(da)
-#     denom = dot( dap, db)
-#     if(denom==0):return False
-#     num = dot( dap, dp )
-#     return (num / denom.astype(float))*db + b1
-
-# def ccw(A,B,C):
-#     return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
-
-# # Return true if line segments AB and CD intersect
-# def line_intersection(line1, line2):
-#     return ccw(line1[0],line2[0],line2[1]) != ccw(line1[1],line2[0],line2[1]) and ccw(line1[0],line1[1],line2[0]) != ccw(line1[0],line1[1],line2[1])
 
 
 
-# def line_intersection(L1, L2):
-#     D  = L1[0][0] * L2[0][1] - L1[0][1] * L2[0][0]
-#     Dx = L1[1][0] * L2[0][1] - L1[0][1] * L2[0][1]
-#     Dy = L1[0][0] * L2[1][0] - L1[1][0] * L2[0][0]
-#     if D != 0:
-#         x = Dx / D
-#         y = Dy / D
-#         return x,y
-#     else:
-#         return False
+def minThisMax(p1,p2,point,eps=10**-5):
+    return (min(p1,p2) <= point +eps)  and  (point -eps <= max(p1,p2))
 
 def distance(a, b):
     return max(abs(a[0]-b[0], abs(a[1]-b[1])))
 
 def findCross(line1, line2):
     point = line_intersection(line1, line2)
-    if (point):
-        if (line1[0][0] <= point[0] <= line1[1][0]
-                and min(line1[0][1], line1[1][1]) <= point[1] <= max(line1[0][1], line1[1][1])
-                and line2[0][0] <= point[0] <= line2[1][0]
-                and min(line2[0][1], line2[1][1]) <= point[1] <= max(line2[0][1], line2[1][1])
-        ):
-#             print("Found it! ", point)
-            return point
-    return False  #Can it be False, or has it to be None...
+    if point:
+        if (minThisMax(line1[0][0],line1[1][0],point[0])):
+            print("first")
+            if(minThisMax(line1[0][1],line1[1][1],point[1])):
+                print("second")
+                if(minThisMax(line2[0][0],line2[1][0],point[0])):
+                    print("third")
+                    print(min(line2[0][1], line2[1][1]),point[1],max(line2[0][1], line2[1][1]))
+                    if(minThisMax(line2[0][1], line2[1][1],point[1])):
+                        print("fourth!!!!")
+                        return point
+    return None  # It cant be False, because "bool object in not..."
 
 
 def leftEnd(point, p, rangeX, rangeY):
