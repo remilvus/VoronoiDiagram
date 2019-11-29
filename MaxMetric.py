@@ -19,7 +19,7 @@ def line_intersection(line1, line2):
 
 
 
-def minThisMax(p1 ,p2 ,point ,eps=1 0* *-5):
+def minThisMax(p1 ,p2 ,point ,eps=10**-5):
     return (min(p1 ,p2) <= point +eps) and (point - eps <= max(p1, p2))
 
 
@@ -131,15 +131,15 @@ def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
             y = (B[1] + A[1]) / 2
             x2 = B[0] + (dy / 2 - dx)
             x1 = A[0] - (dy / 2 - dx)
-            leftPoint = leftEnd([x1, y], -1, rangeX, rangeY)
-            rightPoint = rightEnd([x2, y], -1, rangeX, rangeY)
+            leftPoint = leftEnd([x1, y], 1, rangeX, rangeY)
+            rightPoint = rightEnd([x2, y], 1, rangeX, rangeY)
             return [[leftPoint, [x1, y]], [[x1, y], [x2, y]], [[x2, y], rightPoint]]
         else:
             y = (B[1] + A[1]) / 2  # 5
             x1 = B[0] - (dy / 2 - dx)
             x2 = A[0] + (dy / 2 - dx)
-            leftPoint = leftEnd([x1, y], 1, rangeX, rangeY)
-            rightPoint = rightEnd([x2, y], 1, rangeX, rangeY)
+            leftPoint = leftEnd([x1, y], -1, rangeX, rangeY)
+            rightPoint = rightEnd([x2, y], -1, rangeX, rangeY)
             return [[leftPoint, [x1, y]], [[x1, y], [x2, y]], [[x2, y], rightPoint]]
     else:
         if A[1] > B[1] and A[0] < B[0]:  # 6
@@ -164,3 +164,4 @@ def cross(bis1, bis2):
             #             print("found ", p)
             if p: return p
     return False
+
