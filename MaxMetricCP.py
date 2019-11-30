@@ -1,4 +1,5 @@
 
+
 def line_intersection(line1, line2):
     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
     ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
@@ -13,38 +14,34 @@ def line_intersection(line1, line2):
     d = (det(*line1), det(*line2))
     x = det(d, xdiff) / div
     y = det(d, ydiff) / div
-
+    print("what about", x, y)
     return x, y
 
 
 
 
-def minThisMax(p1 ,p2 ,point ,eps=10**-5):
-    return (min(p1 ,p2) <= point +eps) and (point - eps <= max(p1, p2))
-
-
-def distance(a, b):
-    return max(abs(a[0]-b[0]), abs(a[1]-b[1]))
+def minThisMax(p1,p2,point,eps=10**-5):
+    return (min(p1,p2) <= point +eps)  and  (point -eps <= max(p1,p2))
 
 def findCross(line1, line2):
     point = line_intersection(line1, line2)
     if point:
-        if (minThisMax(line1[0][0], line1[1][0], point[0])):
-          #  print("first")
-            if (minThisMax(line1[0][1], line1[1][1], point[1])):
-               # print("second")
-                if (minThisMax(line2[0][0], line2[1][0], point[0])):
-                    #print("third")
-                    #print(min(line2[0][1], line2[1][1]), point[1], max(line2[0][1], line2[1][1]))
-                    if (minThisMax(line2[0][1], line2[1][1], point[1])):
-                       # print("fourth!!!!")
+        if (minThisMax(line1[0][0],line1[1][0],point[0])):
+            print("first")
+            if(minThisMax(line1[0][1],line1[1][1],point[1])):
+                print("second")
+                if(minThisMax(line2[0][0],line2[1][0],point[0])):
+                    print("third")
+                    print(min(line2[0][1], line2[1][1]),point[1],max(line2[0][1], line2[1][1]))
+                    if(minThisMax(line2[0][1], line2[1][1],point[1])):
+                        print("fourth!!!!")
                         return point
     return None  # It cant be False, because "bool object in not..."
 
 
-def leftEnd(point, p, rangeX, rangeY, eps=10 ** -5):
+def leftEnd(point, p, rangeX, rangeY):
     x, y = point[0], point[1]
-    if (p - eps > 0):  # Jeżeli leci w dół
+    if (p > 0):  # Jeżeli leci w dół
         if (x - rangeX[0] < y - rangeY[0]):  # Jeżeli zdarzy się z X=0
             dx = x - rangeX[0]
             fx = rangeX[0]
@@ -53,7 +50,7 @@ def leftEnd(point, p, rangeX, rangeY, eps=10 ** -5):
             dy = y - rangeY[0]
             fy = rangeY[0]
             fx = x - dy
-    elif (p + eps < 0):  # Jeżeli leci w górę
+    elif (p < 0):  # Jeżeli leci w górę
         if (x - rangeX[0] < rangeY[1] - y):  # Zdarzy się x=0
             dx = x - rangeX[0]
             fx = rangeX[0]
@@ -68,9 +65,9 @@ def leftEnd(point, p, rangeX, rangeY, eps=10 ** -5):
     return [fx, fy]
 
 
-def rightEnd(point, p, rangeX, rangeY, eps=10 ** -5):
+def rightEnd(point, p, rangeX, rangeY):
     x, y = point[0], point[1]
-    if (p + eps < 0):  # Jeżeli leci w dół
+    if (p < 0):  # Jeżeli leci w dół
         if (rangeX[1] - x < y - rangeY[0]):  # Jeżeli zdarzy się z X=0
             dx = rangeX[1] - x
             fx = rangeX[1]
@@ -79,7 +76,7 @@ def rightEnd(point, p, rangeX, rangeY, eps=10 ** -5):
             dy = y - rangeY[0]
             fy = rangeY[0]
             fx = x + dy
-    elif (p - eps > 0):  # Jeżeli leci w górę
+    elif (p > 0):  # Jeżeli leci w górę
         if (rangeX[1] - x < rangeY[1] - y):  # Zdarzy się x=0
             dx = rangeX[1] - x
             fx = rangeX[1]
@@ -93,11 +90,6 @@ def rightEnd(point, p, rangeX, rangeY, eps=10 ** -5):
         fx = 0
     return [fx, fy]
 
-def eq(a, b, eps=10 ** -5):
-    return a + eps >= b >= a - eps
-
-# def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
-#     return bis_to_list(bisector_orginal(A, B, rangeX, rangeY))
 
 def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
     dx = B[0] - A[0]
@@ -107,7 +99,7 @@ def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
     if (dx > dy):
         if A[0] > B[0]:
             A[0], A[1], B[0], B[1] = B[0], B[1], A[0], A[1]
-        if eq(dy, 0):  # 1
+        if (dy == 0):  # 1
             return [[[(A[0] + B[0]) / 2, rangeY[0]], [(A[0] + B[0]) / 2, rangeY[1]]]]
 
         elif A[1] < B[1]:  # 2
@@ -129,21 +121,21 @@ def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
     elif dy > dx:
         if A[1] < B[1]:
             A[0], A[1], B[0], B[1] = B[0], B[1], A[0], A[1]
-        if eq(dx, 0):
+        if (dx == 0):
             return [[[rangeX[0], (A[1] + B[1]) / 2], [rangeX[1], (A[1] + B[1]) / 2]]]
         elif A[0] < B[0]:  # 4
             y = (B[1] + A[1]) / 2
             x2 = B[0] + (dy / 2 - dx)
             x1 = A[0] - (dy / 2 - dx)
-            leftPoint = leftEnd([x1, y], 1, rangeX, rangeY)
-            rightPoint = rightEnd([x2, y], 1, rangeX, rangeY)
+            leftPoint = leftEnd([x1, y], -1, rangeX, rangeY)
+            rightPoint = rightEnd([x2, y], -1, rangeX, rangeY)
             return [[leftPoint, [x1, y]], [[x1, y], [x2, y]], [[x2, y], rightPoint]]
         else:
             y = (B[1] + A[1]) / 2  # 5
             x1 = B[0] - (dy / 2 - dx)
             x2 = A[0] + (dy / 2 - dx)
-            leftPoint = leftEnd([x1, y], -1, rangeX, rangeY)
-            rightPoint = rightEnd([x2, y], -1, rangeX, rangeY)
+            leftPoint = leftEnd([x1, y], 1, rangeX, rangeY)
+            rightPoint = rightEnd([x2, y], 1, rangeX, rangeY)
             return [[leftPoint, [x1, y]], [[x1, y], [x2, y]], [[x2, y], rightPoint]]
     else:
         if A[1] > B[1] and A[0] < B[0]:  # 6
@@ -160,21 +152,11 @@ def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
             return [[leftPoint, rightPoint]]
 
 
-# def cross(bis1, bis2):
-#     cross_original(list_to_bis(bis1), list_to_bis(bis2))
-
 def cross(bis1, bis2):
     for each in bis1:
         for i in bis2:
-            #             print("trying to find cross for: ", each, i)
+#             print("trying to find cross for: ", each, i)
             p = findCross(each, i)
-            #             print("found ", p)
+#             print("found ", p)
             if p: return p
     return False
-
-
-def bis_to_list(bis):
-    return [bis[0][0]] + [segment[1] for segment in bis]
-
-# def list_to_bis(line):
-#     return [[line[0], line[1]], [line[1], line[2]], [line[2], line[3]]]
