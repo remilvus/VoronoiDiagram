@@ -17,8 +17,6 @@ def line_intersection(line1, line2):
     return x, y
 
 
-
-
 def minThisMax(p1 ,p2 ,point ,eps=10**-5):
     return (min(p1 ,p2) <= point +eps) and (point - eps <= max(p1, p2))
 
@@ -93,8 +91,13 @@ def rightEnd(point, p, rangeX, rangeY, eps=10 ** -5):
         fx = 0
     return [fx, fy]
 
+
 def eq(a, b, eps=10 ** -5):
     return a + eps >= b >= a - eps
+
+
+def same_point(a, b, eps=1e-10):
+    return eq(a[0], b[0], eps) and eq(a[1], b[1], eps)
 
 # def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
 #     return bis_to_list(bisector_orginal(A, B, rangeX, rangeY))
