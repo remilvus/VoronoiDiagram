@@ -5,6 +5,10 @@ from matplotlib.widgets import Button
 import json as js
 import numpy as np
 
+def dist(point1, point2):
+    return np.sqrt(np.power(point1[0] - point2[0], 2) + np.power(point1[1] - point2[1], 2))
+
+
 class Scene:
     def __init__(self, points=[], lines=[]):
         self.points = points
