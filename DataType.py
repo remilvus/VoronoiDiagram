@@ -3,7 +3,7 @@ import itertools
 from enum import Enum
 
 
-class PointTypes(Enum):
+class EventTypes(Enum):
     CELL = 0
     BEND = 1
     INTERSECTION = 2
