@@ -2,16 +2,16 @@
 
 # Struktury 
     PriorityQueue:
-        klucz: y
-        dane: x, y, typ punktu (poczakowy/środkowy/zgięcie), valid (czy nadal ważny),
-              odcinek do dodania, odpowiadające punktowi środki komórek?
+        klucz: 
+        dane: x, y, typ punktu (poczakowy/środkowy/zgięcie/granica), valid,
+              odcinki do dodania, odpowiadające punktowi środki komórek
         
     RBTree:
         klucz: wsp. x środka komórki
         dane: eventy związane z punktem
         
     VoronoiDiagram:
-        ? 
+        collection of line segments
 
 # metryka maximum <br>
   	max(|x1-x2|,|y1-y2|) 
