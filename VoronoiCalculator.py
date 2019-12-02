@@ -119,7 +119,7 @@ class Voronoi:
             return a
 
     @staticmethod
-    def _extract_line_part(line, a, b, eps=10**-5):
+    def _extract_line_part(line, a, b, eps=1e-10):
         # 'a' and 'b' can be given in any order
         # todo extract part of line between points a and b
         # Let me try
