@@ -127,19 +127,22 @@ class Voronoi:
         if a[0] > b[0]:  # now point 'a' will always be before 'b'
             a, b = b, a
 
-        newline=[]
-        i=0
+        newline = []
+        i = 0
         for each in line:
             if a[0] >= each[1][0] - eps:
                 i+=1
             elif b[0] > each[1][0]-eps:
                 newline.append([a, each[1]])
                 a = each[1]
-            else: break
+            else:
+                break
         newline.append([a, b])
         print(newline)
         return newline
         #Might, but might not work. Check it, if u got any tests ready
+
+
 
     @staticmethod
     def _segments_from_horizontal(line): # gets top two segments from line
