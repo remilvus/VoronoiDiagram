@@ -137,7 +137,7 @@ class Voronoi:
                 a = each[1]
             else:
                 break
-        newline.append([a, b])
+        if(not a==b): newline.append([a, b])
         print(newline)
         return newline
         #Might, but might not work. Check it, if u got any tests ready
