@@ -133,8 +133,12 @@ class Voronoi:
             if a[0] > each[1][0] + eps:
                 i+=1
             elif b[0] > each[1][0]-eps:
-                newline.append([a, each[1]])
-                a = each[1]
+                if each[0][0]- eps<each[1][0]< each[0][0]+eps and each[0][0]- eps<b[0]< each[0][0]+eps:
+                    newline.append(a,b)
+                    break
+                else:
+                    newline.append([a, each[1]])
+                    a = each[1]
             else:
                 break
         if(not a==b): newline.append([a, b])
