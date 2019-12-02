@@ -172,7 +172,7 @@ class Voronoi:
         right_n.left_point_used = (event.x, event.y)
         node.left_point_used = (event.x, event.y)
         node.right_point_used = (event.x, event.y)
-        node.left_event = node.right_event = event
+        right_n.left_event = left_n.right_event = node.left_event = node.right_event = event
 
 
     def _process_cell(self, event):
@@ -442,9 +442,14 @@ class Voronoi:
         return res
 
     def _invalidate_events(self, key, left_n, right_n):
-        # todo invalidate events in nodes based on key of a new event
-        pass
-
+        # todo check correctness
+        if left_n.right_event:
+            print(f"old { left_n.right_event.key} new {key}")
+           # assert left_n.right_event.key < key
+            left_n.right_event.valid = False
+        if right_n.left_event:
+          #  assert right_n.left_event.key < key
+            right_n.left_event.valid = False
 
 def get_points():
     plot = Plot()
