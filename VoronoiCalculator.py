@@ -5,7 +5,6 @@ from RBTree import *
 from MaxMetric import *
 from Plot import *
 
-
 class Voronoi:
     def __init__(self, points):
         self.output = []  # list of line segment
@@ -121,6 +120,7 @@ class Voronoi:
 
     @staticmethod
     def _extract_line_part(line, a, b, eps=10**-5):
+        # 'a' and 'b' can be given in any order
         # todo extract part of line between points a and b
         # Let me try
         print(f"extracting from {line} \n points: {a}, {b}")
