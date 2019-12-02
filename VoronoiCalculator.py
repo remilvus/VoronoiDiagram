@@ -146,7 +146,7 @@ class Voronoi:
                     a = each[1]
             else:
                 break
-        if (not a[1] == b[1]) and (not a[0] == b[0]):
+        if (not a[1] == b[1]) or (not a[0] == b[0]):
             newline.append([a, b])
         print("extracted: ", end="")
         for seg in newline.copy():
