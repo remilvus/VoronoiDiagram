@@ -142,7 +142,8 @@ class Voronoi:
                     a = each[1]
             else:
                 break
-        if (not a[1] == b[1]) and (not a[0]==b[0]) : newline.append([a, b])
+        if (not a[1] == b[1]) and (not a[0] == b[0]):
+            newline.append([a, b])
         print(newline)
         return newline
         # Might, but might not work. Check it, if u got any tests ready
