@@ -120,9 +120,21 @@ class Voronoi:
             return a
 
     @staticmethod
-    def _extract_line_part(line, a, b):
+    def _extract_line_part(line, a, b, eps=10**-5):
         # todo extract part of line between points a and b
-        return line
+        # Let me try
+        newline=[]
+        i=0
+        for each in line:
+            if a[0] >= each[1][0] - eps:
+                i+=1
+            elif b[0] > each[1][0]-eps:
+                newline.append([a, each[1]])
+                a = each[1]
+            else: break
+        newline.append([a, b])
+        return newline
+        #Might, but might not work. Check it, if u got any tests ready
 
     @staticmethod
     def _segments_from_horizontal(line): # gets top two segments from line
