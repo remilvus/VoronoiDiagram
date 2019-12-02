@@ -130,7 +130,7 @@ class Voronoi:
         newline = []
         i = 0
         for each in line:
-            if a[0] >= each[1][0] - eps:
+            if a[0] > each[1][0] - eps:
                 i+=1
             elif b[0] > each[1][0]-eps:
                 newline.append([a, each[1]])
