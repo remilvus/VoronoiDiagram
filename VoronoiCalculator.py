@@ -53,8 +53,8 @@ class Voronoi:
         while not self.events.empty():
             key, event = self.events.get()
             self.current_key = key
-            print(f"valid? {event.valid} | event {event.type} at {event.x}, {event.y} | key {event.key} | cells: {event.left_cell} "
-                  f"{event.right_cell}")
+           # print(f"valid? {event.valid} | event {event.type} at {event.x}, {event.y} | key {event.key} | cells: {event.left_cell} "
+           #       f"{event.right_cell}")
             # print(f"event segments: {event.segments}")
            # print(self.output)
             if event.valid:
@@ -134,7 +134,7 @@ class Voronoi:
                 i+=1
             elif b[0] > each[1][0]-eps:
                 if each[0][0]- eps<each[1][0]< each[0][0]+eps and each[0][0]- eps<b[0]< each[0][0]+eps:
-                    newline.append(a,b)
+                    newline.append([a,b])
                     break
                 else:
                     newline.append([a, each[1]])
