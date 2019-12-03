@@ -101,18 +101,18 @@ class _Button_callback(object):
     def __init__(self, scenes):
         self.i = 0
         self.scenes = scenes
-        self.adding_points = False
+        self.adding_points = True
         self.added_points = []
     def set_axes(self, ax):
         self.ax = ax
 
     def next(self, event):
         self.i = (self.i + 1) % len(self.scenes)
-        self.draw(autoscaling=True)
+        self.draw(autoscaling=False)
 
     def prev(self, event):
         self.i = (self.i - 1) % len(self.scenes)
-        self.draw(autoscaling=True)
+        self.draw(autoscaling=False)
 
     def add_point(self, event):
         self.adding_points = not self.adding_points
@@ -121,6 +121,8 @@ class _Button_callback(object):
             self.adding_lines = False
             self.adding_rects = False
             self.added_points.append(PointsCollection([]))
+
+
 
     def on_click(self, event):
         if event.inaxes != self.ax:
@@ -167,11 +169,13 @@ class PlotFirst:
 
     def __configure_buttons(self):
         plt.subplots_adjust(bottom=0.2)
-
+        ax_add_los = plt.axes([0.55, 0.05, 0.15, 0.075])
         ax_add_point = plt.axes([0.76, 0.05, 0.15, 0.075])
+        b_add_los = Button(ax_add_los, '5 Random Points')
+        b_add_los.on_clicked(self.callback.next)
         b_add_point = Button(ax_add_point, 'Add Points')
         b_add_point.on_clicked(self.callback.add_point)
-        return [b_add_point]
+        return [b_add_point, b_add_los]
 
     def add_scene(self, scene):
         self.scenes.append(scene)
