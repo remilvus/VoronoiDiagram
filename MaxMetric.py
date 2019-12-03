@@ -133,6 +133,8 @@ def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
             return [[leftPoint, [x, y1]], [[x, y1], [x, y2]], [[x, y2], rightPoint]]
     elif dy > dx:
         if A[1] < B[1]:
+            A = list(A)
+            B = list(B)
             A[0], A[1], B[0], B[1] = B[0], B[1], A[0], A[1]
         if eq(dx, 0):
             return [[[rangeX[0], (A[1] + B[1]) / 2], [rangeX[1], (A[1] + B[1]) / 2]]]
