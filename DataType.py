@@ -86,6 +86,17 @@ class Event:
         self.segments = segments
         self.key = key
 
+    def __gt__(self, other):
+        print(f" gt | {self.type} | {other.type} | {self.x > other.x}")
+        return self.x > other.x
+
+    def __lt__(self, other):
+        print(f" gt | {self.type} | {other.type} | {self.x < other.x}")
+        return self.x < other.x
+
+    def __eq__(self, other):
+        print(f"event equal")
+        return  self.x == other.y
 
 class Arc: #useless?
     p = None
