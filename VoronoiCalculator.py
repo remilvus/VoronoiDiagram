@@ -5,6 +5,8 @@ from RBTree import *
 from MaxMetric import *
 from Plot import *
 
+from VoronoiDiagram.Plot import PlotFirst, PlotSecond
+
 
 class Voronoi:
     def __init__(self, points):
@@ -562,5 +564,5 @@ if __name__ == "__main__":
     #points = [[0.4, 0.5], [0.5, 0.5]]
     voronoi = Voronoi(points)
     voronoi.process()
-    plot = Plot(voronoi.scenes)
+    plot = PlotSecond(voronoi.scenes)
     plot.draw()
