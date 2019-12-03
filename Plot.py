@@ -4,6 +4,7 @@ import matplotlib.colors as mcolors
 from matplotlib.widgets import Button
 import json as js
 import numpy as np
+import time
 
 def dist(point1, point2):
     return np.sqrt(np.power(point1[0] - point2[0], 2) + np.power(point1[1] - point2[1], 2))
@@ -110,12 +111,6 @@ class _Button_callback(object):
         self.i = (self.i + 1) % len(self.scenes)
         self.draw(autoscaling=False)
 
-    def start(self, event):
-        while(true):
-            sleep(1)
-            self.i = (self.i + 1) % len(self.scenes)
-            self.draw(autoscaling=False)
-
     def prev(self, event):
         self.i = (self.i - 1) % len(self.scenes)
         self.draw(autoscaling=False)
@@ -205,63 +200,11 @@ class PlotFirst:
         self.callback.draw()
 
 
+
+
+
+
 class PlotSecond:
-    def __init__(self, scenes=[Scene()], json=None):
-        if json is None:
-            self.scenes = scenes
-        else:
-            self.scenes = [Scene([PointsCollection(pointsCol) for pointsCol in scene["points"]],
-                                 [LinesCollection(linesCol) for linesCol in scene["lines"]])
-                           for scene in js.loads(json)]
-
-    def __configure_buttons(self):
-        plt.subplots_adjust(bottom=0.2)
-        ax_prev = plt.axes([0.6, 0.05, 0.15, 0.075])
-        ax_next = plt.axes([0.76, 0.05, 0.15, 0.075])
-        b_next = Button(ax_next, 'start')
-        b_next.on_clicked(self.callback.start)
-        b_prev = Button(ax_prev, 'stop')
-        b_prev.on_clicked(self.callback.stop)
-        return [b_prev, b_next]
-
-    def add_scene(self, scene):
-        self.scenes.append(scene)
-
-    def add_scenes(self, scenes):
-        self.scenes = self.scenes + scenes
-
-    def toJson(self):
-        return js.dumps([{"points": [np.array(pointCol.points).tolist() for pointCol in scene.points],
-                          "lines": [linesCol.lines for linesCol in scene.lines]}
-                         for scene in self.scenes])
-
-    def get_added_points(self):
-        if self.callback:
-            return self.callback.added_points
-        else:
-            return None
-
-    def get_added_elements(self):
-        if self.callback:
-            return Scene(self.callback.added_points, [])
-        else:
-            return None
-
-    def draw(self):
-        plt.close()
-        fig = plt.figure()
-        self.callback = _Button_callback(self.scenes)
-        self.widgets = self.__configure_buttons()
-        ax = plt.axes(autoscale_on=False)
-        self.callback.set_axes(ax)
-        fig.canvas.mpl_connect('button_press_event', self.callback.on_click)
-        plt.show()
-        self.callback.draw()
-
-
-
-
-class PlotSecondA:
     def __init__(self, scenes=[Scene()], json=None):
         if json is None:
             self.scenes = scenes
