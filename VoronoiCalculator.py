@@ -209,7 +209,7 @@ class Voronoi:
 
     @staticmethod
     def _segments_from_horizontal(line):  # gets top two segments from line
-        return [Voronoi._get_top_segment(line), line[1]]
+        return [Voronoi._get_top_segment(line)]
 
     @staticmethod
     def _get_bottom_end(line):
@@ -305,9 +305,9 @@ class Voronoi:
                 if LineType.get_type(line) == LineType.HORIZONTAL_PART:
 
                     # gets segments that can be added to Voronoi diagram
-                    segments = self._segments_from_horizontal(line)
+                    segments = self._get_top_segment(line)
                     #    print(f"seg from horiztonal: {segments}")
-                    event_x, event_y = self._get_bot_point(line)
+                    event_x, event_y = self._get_top_point(line)
                     key = event_y  # key is above current key -> it will be added to Voronoi diagram in the next step
                     if is_left:
                         event = Event(event_x, event_y, left_cell=left_n.value, right_cell=node.value,
