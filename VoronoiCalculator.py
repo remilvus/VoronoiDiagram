@@ -548,7 +548,7 @@ class Voronoi:
 
 
 def get_points():
-    plot = Plot()
+    plot = PlotFirst()
     plot.draw()
     points = plot.get_added_points()[0].points
     points = np.array(points, dtype=np.float64)
