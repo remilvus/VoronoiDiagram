@@ -1,43 +1,54 @@
-# VoronoiDiagram
+#Dokumentacja
+Algorytm wyznaczania Wieloboków Voronoi 
+dla metryki nieuklidesowskiej wraz z wizualizacją
 
-# Struktury 
-    PriorityQueue:
-        klucz: 
-        dane: x, y, typ punktu (poczakowy/środkowy/zgięcie/granica), valid,
-              odcinki do dodania, odpowiadające punktowi środki komórek
-        
-    RBTree:
-        klucz: wsp. x środka komórki
-        dane: eventy związane z punktem
-        
-    VoronoiDiagram:
-        collection of line segments
+#Wykorzystany Algorym
+Do rozwiązania zagadnienia użyliśmy Algorytmu Fortuny
 
-# metryka maximum <br>
-  	max(|x1-x2|,|y1-y2|) 
-  	wyznaczanie symetralnej 
-# inne kwestie geometryczne <br>
-  	wyznaczanie prostej(?)  
-  	przecięcia linii 
+#Złożoność obliczeniowa algorytmu
+O(n*logn)
+
+
+#Wykorzystana metryka
+
+#Metryka maximum
+	d(x,y)=max(|x1-x2|,|y1-y2|)
+
+
+
+
+
+
+
+#Struktury
+
+PriorityQueue:
+    klucz: 
+    dane: x, y, typ punktu (poczakowy/środkowy/zgięcie/granica), valid,
+          odcinki do dodania, odpowiadające punktowi środki komórek
+    
+RBTree:
+    klucz: wsp. x środka komórki
+    dane: eventy związane z punktem
+    
+VoronoiDiagram:
+    collection of line segments
 	
-#Algorytm Fortuny:
-	Definiujemy granice
+
+#Podfunkcje geometryczne
+	Wyznaczanie symetralnej:
+		bisector(A, B, rangex=[0,1],rangeY[0,1])
+	Znajdowanie przecięcia symetralnych:
+		findCross(line1, line2)
+	Znajdowanie przecięcia linii:
+		line_intersection
+
+#Klasa Voronoi
+	Zawiera:
+		PriorityQueue przechowujące eventy
+		RBTree trzyma aktywne początkowe punkty
+		Lista zachowująca linie dołączone do diagramu Voronoi
+			output
+		Inne listy i zmienne w celach technicznych 
+			opisane komentarzami z poziomu kodu		
 	
-	Legenda:
-		Punkt początkowy - środki wielokątów
-		Punkt środkowy - punkt przecięcia symetralnych
-	Główna pętla:
-		Zabieramy event z PriorityQueue
-		Jeśli punkt poczatkowy:
-			dodajemy do miotły
-			obliczamy punkt(punkty???) przecięcia z sąsiadami
-			Oznaczamy jako do dodania i dodajemy do priorityQueue
-				z kluczem  najniższego położenia y należącego 
-				do jego kwardratu ("okręgu")
-			dodajemy punkty załamania
-			Punkty które nie powstaną oznaczamy jako do wywalenia
-		Jeśli punkt środkowy:
-			Dodajemy punkt do diagramu
-		
-	potencjalne problemy:
-		co jeśli punkt załamania jest punktem środkowym? 
