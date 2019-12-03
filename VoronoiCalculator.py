@@ -173,7 +173,7 @@ class Voronoi:
 
 
     @staticmethod
-    def _extract_line_part(line, a, b, eps=1e-10):
+    def _extract_line_part(line, a, b, eps=1e-6):
         newline = []
         if a[0] > b[0]:  # now point 'a' will always be before 'b'
             a, b = b, a
@@ -185,6 +185,8 @@ class Voronoi:
                 print(f"({s:.02f},{e:.02f})-", end=" ")
         print()
         for segment in line:
+            print(not started, Voronoi._is_in_segment(segment, a, eps)
+                    , not same_point(a, segment[1], eps), not Voronoi._is_in_segment(segment, b, eps))
             if (not started and Voronoi._is_in_segment(segment, a, eps)
                     and not same_point(a, segment[1], eps) and not Voronoi._is_in_segment(segment, b, eps)):
                 newline.append((a, segment[1]))
@@ -252,6 +254,7 @@ class Voronoi:
         node = self.active_cells.findNode(event.x)
         if node:  # adding exactly below active cell point (rare)
             # TODO (low priority)
+            event.x += self.eps
             pass
 
         node = self.active_cells.insert(event.x)
@@ -337,9 +340,18 @@ class Voronoi:
                         node.value.right_point_used = (event_x, event_y)
                         node.value.right_event = event
                     self.events.put((-key, event))
-                else:
-                    # TODO process other types of lines (pure vertical, inclined, ?horizontal?) (low priority)
-                    pass
+                else: # line consisting of only one segment
+                    segment = line[0]
+                    endpoint = self._get_lower_point(segment[0], segment[1])
+                    event = Event(0, 0, point_type=EventTypes.BOUNDARY, segments=line)
+                    self.boundary_events.append(event)
+                    if left_n:
+                        left_n.right_event = event
+                        node.value.left_event = event
+                    elif right_n:
+                        right_n.left_event = event
+                        node.value.right_event = event
+
 
         # update bisectors and events in tree nodes
         if line_left:
@@ -546,8 +558,8 @@ def get_points():
 
 
 if __name__ == "__main__":
-    #points = get_points()
-    points = [[0.4, 0.5], [0.5, 0.5]]
+    points = get_points()
+    #points = [[0.4, 0.5], [0.5, 0.5]]
     voronoi = Voronoi(points)
     voronoi.process()
     plot = Plot(voronoi.scenes)

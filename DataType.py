@@ -19,14 +19,14 @@ class LineType(Enum):
 
     @staticmethod
     def get_type(line):
-        if len(line) == 2:
-            if line[0][0] == line[1][0]:
+        if len(line) == 1:
+            if line[0][0][0] == line[0][1][0]:
                 return LineType.VERTICAL
-            if line[0][1] == line[1][1]:
+            if line[0][0][1] == line[0][1][1]:
                 return LineType.HORIZONTAL
             return LineType.INCLINED
-        else:
-            if line[1][1] == line[2][1]:
+        elif len(line) == 3:
+            if line[1][0][1] == line[1][1][1]:
                 return LineType.HORIZONTAL_PART
             return LineType.VERTICAL_PART
 
