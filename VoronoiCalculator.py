@@ -118,44 +118,92 @@ class Voronoi:
         else:
             return a
 
+    # @staticmethod
+    # def _extract_line_part(line, a, b, eps=1e-10):
+    #     # 'a' and 'b' can be given in any order
+    #     # todo extract part of line between points a and b
+    #     # Let me try
+    #    # print(line)
+    #     print(f"extracting between points: {a}, {b} \nfrom line:", end=" ")
+    #     for seg in line.copy():
+    #         for point in seg:
+    #             s, e = point
+    #             print(f"({s:.2f},{e:.02f})-", end=" ")
+    #     if a[0] > b[0]:  # now point 'a' will always be before 'b'
+    #         a, b = b, a
+    #
+    #     newline = []
+    #     i = 0
+    #     for each in line:
+    #         if a[0] > each[1][0] + eps:
+    #             i+=1
+    #         elif b[0] > a[0]-eps:
+    #             if a[0]- eps<each[1][0]< a[0]+eps and a[0]- eps<b[0]< a[0]+eps:
+    #                 # newline.append([a,b])
+    #                 break
+    #             else:
+    #                 newline.append([a, each[1]])
+    #                 a = each[1]
+    #         else:
+    #             break
+    #     if (not a[1] == b[1]) or (not a[0] == b[0]):
+    #         newline.append([a, b])
+    #     print("extracted: ", end="")
+    #     for seg in newline.copy():
+    #         for point in seg:
+    #             s, e = point
+    #             print(f"({s:.02f},{e:.02f})-", end=" ")
+    #     print(newline)
+    #     return newline
+    #     # Might, but might not work. Check it, if u got any tests ready
+
+    @staticmethod
+    def _is_in_segment(segment, point, eps=1e-10):
+        segment = segment.copy()
+        lower_y = segment[0][1]
+        if lower_y > segment[1][1]:
+            lower_y = segment[1][1]
+        higher_y = segment[0][1]
+        if higher_y < segment[1][1]:
+            higher_y = segment[1][1]
+        if (segment[0][0] - eps < point[0] < segment[1][0] + eps and
+                lower_y - eps < point[1] < higher_y + eps):
+            return True
+        return False
+
+
     @staticmethod
     def _extract_line_part(line, a, b, eps=1e-10):
-        # 'a' and 'b' can be given in any order
-        # todo extract part of line between points a and b
-        # Let me try
-       # print(line)
-        print(f"extracting between points: {a}, {b} \nfrom line:", end=" ")
-        for seg in line.copy():
-            for point in seg:
-                s, e = point
-                print(f"({s:.2f},{e:.02f})-", end=" ")
+        newline = []
         if a[0] > b[0]:  # now point 'a' will always be before 'b'
             a, b = b, a
-
-        newline = []
-        i = 0
-        for each in line:
-            if a[0] > each[1][0] + eps:
-                i+=1
-            elif b[0] > a[0]-eps:
-                if a[0]- eps<each[1][0]< a[0]+eps and a[0]- eps<b[0]< a[0]+eps:
-                    # newline.append([a,b])
-                    break
-                else:
-                    newline.append([a, each[1]])
-                    a = each[1]
-            else:
-                break
-        if (not a[1] == b[1]) or (not a[0] == b[0]):
-            newline.append([a, b])
-        print("extracted: ", end="")
-        for seg in newline.copy():
+        started = False
+        print(f"extracting between: {a}, {b}")
+        for seg in line:
             for point in seg:
                 s, e = point
                 print(f"({s:.02f},{e:.02f})-", end=" ")
-        print(newline)
-        return newline
-        # Might, but might not work. Check it, if u got any tests ready
+        print()
+        for segment in line:
+            if (not started and Voronoi._is_in_segment(segment, a, eps)
+                    and not same_point(a, segment[1], eps) and not Voronoi._is_in_segment(segment, b, eps)):
+                newline.append((a, segment[1]))
+                started = True
+            elif started and not Voronoi._is_in_segment(segment, b, eps):
+                newline.append(segment)
+            elif started:
+                newline.append((segment[0], b))
+                break
+        for seg in newline:
+            for point in seg:
+                s, e = point
+                print(f"({s:.02f},{e:.02f})-", end=" ")
+        print()
+        if newline:
+            return newline
+        else:
+            return [(a, b)]
+
 
     @staticmethod
     def _segments_from_horizontal(line):  # gets top two segments from line
