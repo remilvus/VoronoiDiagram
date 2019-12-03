@@ -134,8 +134,8 @@ class _Button_callback(object):
 
     def draw(self, autoscaling=True):
         if not autoscaling:
-            xlim = self.ax.get_xlim()
-            ylim = self.ax.get_ylim()
+            xlim = max(self.ax.get_xlim(),self.ax.get_ylim())
+            ylim = max(self.ax.get_xlim(),self.ax.get_ylim())
         self.ax.clear()
         for collection in (self.scenes[self.i].points + self.added_points):
             if len(collection.points) > 0:

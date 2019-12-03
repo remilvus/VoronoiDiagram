@@ -8,8 +8,8 @@ Do rozwiązania zagadnienia użyliśmy Algorytmu Fortuny
 #Złożoność obliczeniowa algorytmu
 O(n*logn)
 
-
 #Wykorzystana metryka
+
 
 #Metryka maximum
 	d(x,y)=max(|x1-x2|,|y1-y2|)
