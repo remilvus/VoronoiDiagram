@@ -169,9 +169,63 @@ class PlotFirst:
         plt.subplots_adjust(bottom=0.2)
 
         ax_add_point = plt.axes([0.76, 0.05, 0.15, 0.075])
-        b_add_point = Button(ax_add_point, 'Dodaj punkt')
+        b_add_point = Button(ax_add_point, 'Add Points')
         b_add_point.on_clicked(self.callback.add_point)
         return [b_add_point]
+
+    def add_scene(self, scene):
+        self.scenes.append(scene)
+
+    def add_scenes(self, scenes):
+        self.scenes = self.scenes + scenes
+
+    def toJson(self):
+        return js.dumps([{"points": [np.array(pointCol.points).tolist() for pointCol in scene.points],
+                          "lines": [linesCol.lines for linesCol in scene.lines]}
+                         for scene in self.scenes])
+
+    def get_added_points(self):
+        if self.callback:
+            return self.callback.added_points
+        else:
+            return None
+
+    def get_added_elements(self):
+        if self.callback:
+            return Scene(self.callback.added_points, [])
+        else:
+            return None
+
+    def draw(self):
+        plt.close()
+        fig = plt.figure()
+        self.callback = _Button_callback(self.scenes)
+        self.widgets = self.__configure_buttons()
+        ax = plt.axes(autoscale_on=False)
+        self.callback.set_axes(ax)
+        fig.canvas.mpl_connect('button_press_event', self.callback.on_click)
+        plt.show()
+        self.callback.draw()
+
+
+class PlotSecond:
+    def __init__(self, scenes=[Scene()], json=None):
+        if json is None:
+            self.scenes = scenes
+        else:
+            self.scenes = [Scene([PointsCollection(pointsCol) for pointsCol in scene["points"]],
+                                 [LinesCollection(linesCol) for linesCol in scene["lines"]])
+                           for scene in js.loads(json)]
+
+    def __configure_buttons(self):
+        plt.subplots_adjust(bottom=0.2)
+        ax_prev = plt.axes([0.6, 0.05, 0.15, 0.075])
+        ax_next = plt.axes([0.76, 0.05, 0.15, 0.075])
+        b_next = Button(ax_next, 'Next')
+        b_next.on_clicked(self.callback.next)
+        b_prev = Button(ax_prev, 'Previous')
+        b_prev.on_clicked(self.callback.prev)
+        return [b_prev, b_next]
 
     def add_scene(self, scene):
         self.scenes.append(scene)
