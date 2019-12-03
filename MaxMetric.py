@@ -109,6 +109,8 @@ def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
     dy = max(dy, -dy)
     if (dx > dy):
         if A[0] > B[0]:
+            A = list(A)
+            B = list(B)
             A[0], A[1], B[0], B[1] = B[0], B[1], A[0], A[1]
         if eq(dy, 0):  # 1
             return [[[(A[0] + B[0]) / 2, rangeY[0]], [(A[0] + B[0]) / 2, rangeY[1]]]]
