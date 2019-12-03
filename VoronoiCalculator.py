@@ -546,7 +546,8 @@ def get_points():
 
 
 if __name__ == "__main__":
-    points = get_points()
+    #points = get_points()
+    points = [[0.4, 0.5], [0.5, 0.5]]
     voronoi = Voronoi(points)
     voronoi.process()
     plot = Plot(voronoi.scenes)
