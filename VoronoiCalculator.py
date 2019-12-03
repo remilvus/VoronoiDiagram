@@ -3,9 +3,9 @@ from queue import PriorityQueue
 from DataType import *
 from RBTree import *
 from MaxMetric import *
-from Plot import *
+from Plot2 import *
 
-from VoronoiDiagram.Plot import PlotFirst, PlotSecond
+from Plot import PlotFirst, PlotSecond
 
 
 class Voronoi:
@@ -191,7 +191,10 @@ class Voronoi:
                     , not same_point(a, segment[1], eps), not Voronoi._is_in_segment(segment, b, eps))
             if (not started and Voronoi._is_in_segment(segment, a, eps)
                     and not same_point(a, segment[1], eps) and not Voronoi._is_in_segment(segment, b, eps)):
-                newline.append((a, segment[1]))
+                if abs(a[0] - b[0]) < eps:
+                    return [[a,b]]
+                else:
+                    newline.append((a, segment[1]))
                 started = True
             elif started and not Voronoi._is_in_segment(segment, b, eps):
                 newline.append(segment)
@@ -228,7 +231,7 @@ class Voronoi:
         self._invalidate_events(key, left_n, right_n)
         if -key < self.current_key:
             print(f"not adding intersection at {intersection}")
-            return
+            return False
 
         if type(node) == RBNode:
             node = node.value
@@ -242,22 +245,18 @@ class Voronoi:
         # print(f"segments: {segments}")
         event = Event(intersection[0], intersection[1], left_cell=left_n, right_cell=right_n,
                       segments=segments, point_type=EventTypes.INTERSECTION, key=key)
-
+        print(f"add intersection at {intersection}")
         self.events.put((-key, event))
 
         # update info in tree nodes
-        #left_n.right_point_used = (event.x, event.y)
-       # right_n.left_point_used = (event.x, event.y)
-       # node.left_point_used = (event.x, event.y)
-      #  node.right_point_used = (event.x, event.y)
         right_n.left_event = left_n.right_event = node.left_event = node.right_event = event
+        return True
 
     def _process_cell(self, event):
         node = self.active_cells.findNode(event.x)
         if node:  # adding exactly below active cell point (rare)
             # TODO (low priority)
             event.x += self.eps
-            pass
 
         node = self.active_cells.insert(event.x)
         node.value = Cell(event.x, event.y)
@@ -307,7 +306,7 @@ class Voronoi:
                 if LineType.get_type(line) == LineType.HORIZONTAL_PART:
 
                     # gets segments that can be added to Voronoi diagram
-                    segments = self._get_top_segment(line)
+                    segments = [self._get_top_segment(line)]
                     #    print(f"seg from horiztonal: {segments}")
                     event_x, event_y = self._get_top_point(line)
                     key = event_y  # key is above current key -> it will be added to Voronoi diagram in the next step
@@ -317,12 +316,14 @@ class Voronoi:
                         left_n.value.right_point_used = (event_x, event_y)
                         node.value.left_point_used = (event_x, event_y)
                         node.value.left_event = event
+                        left_n.value.right_event = event
                     else:
                         event = Event(event_x, event_y, left_cell=node.value, right_cell=right_n.value,
                                       segments=segments, point_type=EventTypes.BEND, key=key)
                         right_n.value.left_point_used = (event_x, event_y)
                         node.value.right_point_used = (event_x, event_y)
                         node.value.right_event = event
+                        right_n.value.left_event = event
                     self.events.put((-key, event))
                 elif LineType.get_type(line) == LineType.VERTICAL_PART:
                     segments = [self._get_top_segment(line)]
@@ -335,12 +336,14 @@ class Voronoi:
                         left_n.value.right_point_used = (event_x, event_y)
                         node.value.left_point_used = (event_x, event_y)
                         node.value.left_event = event
+                        left_n.value.right_event = event
                     else:
                         event = Event(event_x, event_y, left_cell=node.value, right_cell=right_n.value,
                                       segments=segments, point_type=EventTypes.BEND, key=key)
                         right_n.value.left_point_used = (event_x, event_y)
                         node.value.right_point_used = (event_x, event_y)
                         node.value.right_event = event
+                        right_n.value.left_event = event
                     self.events.put((-key, event))
                 else: # line consisting of only one segment
                     segment = line[0]
@@ -396,6 +399,8 @@ class Voronoi:
                 new_event = Event(x, y, point_type=EventTypes.BEND, right_cell=event.right_cell,
                                   left_cell=event.left_cell,
                                   segments=[], key=key)
+                self.events.put((-key, new_event))
+                break
             elif is_left:
                 new_event = Event(x, y, point_type=EventTypes.BEND, right_cell=mid_cell, left_cell=event.left_cell,
                                   segments=[], key=key)
@@ -411,6 +416,7 @@ class Voronoi:
                     # print(f"adding boundart event line: {line} | endpoint {endpoint} | pointused {event.left_cell.right_point_used}")
                 else:
                     endpoint = self._get_bottom_end(line)
+                    print(f"endpoint {endpoint}")
                     segments = self._extract_line_part(line, endpoint, event.right_cell.left_point_used)
                 #   print(f"adding boundart event line: {line} | endpoint {endpoint} | pointused {event.right_cell.left_point_used}")
                 self.boundary_events.append((Event(0, 0, point_type=EventTypes.BOUNDARY, segments=segments)))
@@ -457,8 +463,9 @@ class Voronoi:
                 left_cell = self.active_cells.findNode(left_cell_key).value
                 d = distance(intersection, (mid_cell.x, mid_cell.y))
                 key = intersection[1] - d
-                self._intersection_to_event(key, mid_cell, left_cell, event.right_cell, intersection)
-                add_boundary = False
+                added = self._intersection_to_event(key, mid_cell, left_cell, event.right_cell, intersection)
+                if added:
+                    add_boundary = False
         if line_right:
             intersection = cross(line_right, event_line)
             if intersection and not same_point(intersection, (event.x, event.y)):
@@ -468,10 +475,12 @@ class Voronoi:
                 right_cell = self.active_cells.findNode(right_cell_key).value
                 d = distance(intersection, (mid_cell.x, mid_cell.y))
                 key = intersection[1] - d
-                self._intersection_to_event(key, mid_cell, event.left_cell, right_cell, intersection)
-                add_boundary = False
+                added = self._intersection_to_event(key, mid_cell, event.left_cell, right_cell, intersection)
+                if added:
+                    add_boundary = False
         if add_boundary:
             endpoint = self._get_bottom_end(event_line)
+            print(f"bend add bound endpoint: {endpoint} | line: {event_line}")
             segments = self._extract_line_part(event_line, endpoint, event.right_cell.left_point_used)
             # print(f"add bound | line {event_line} | a {endpoint} | b {event.right_cell.left_point_used}")
             new_event = Event(0, 0, point_type=EventTypes.BOUNDARY, segments=segments, key=-99999)
@@ -545,14 +554,16 @@ class Voronoi:
              # assert left_n.right_event.key < key
             left_n.right_event.valid = False
         if right_n.left_event:
+            print(f"old {left_n.right_event.key} new {key}")
             #  assert right_n.left_event.key < key
             right_n.left_event.valid = False
 
 
 def get_points():
-    plot = PlotFirst()
+    plot = Plot()
     plot.draw()
     points = plot.get_added_points()[0].points
+    #print(points)
     points = np.array(points, dtype=np.float64)
     idx = np.argsort(points[:, 1])
     idx = np.flip(idx)
@@ -564,5 +575,5 @@ if __name__ == "__main__":
     #points = [[0.4, 0.5], [0.5, 0.5]]
     voronoi = Voronoi(points)
     voronoi.process()
-    plot = PlotSecond(voronoi.scenes)
+    plot = Plot(voronoi.scenes)
     plot.draw()
