@@ -536,7 +536,7 @@ class Voronoi:
 
 
 def get_points():
-    plot = Plot()
+    plot = PlotFirst()
     plot.draw()
     points = plot.get_added_points()[0].points
     points = np.array(points, dtype=np.float64)
@@ -547,7 +547,7 @@ def get_points():
 
 if __name__ == "__main__":
     #points = get_points()
-    points = [[0.4, 0.5], [0.5, 0.5]]
+    points = []
     voronoi = Voronoi(points)
     voronoi.process()
     plot = Plot(voronoi.scenes)
