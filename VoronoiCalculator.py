@@ -21,9 +21,9 @@ class Voronoi:
         self.active_cells = RBTree()
 
         # bounding box
-        self.x0 = -0.5
+        self.x0 = -1.5
         self.x1 = 1.5
-        self.y0 = -0.5
+        self.y0 = -1.5
         self.y1 = 1.5
 
         # insert points to site event
@@ -421,7 +421,7 @@ class Voronoi:
             self.active_cells.deleteNode(mid_node)
 
             # update bisectors in cells
-            new_bisector = bisector((event.left_cell.x, event.left_cell.y), (event.right_cell.x, event.right_cell.y))
+            new_bisector = self._bisector((event.left_cell.x, event.left_cell.y), (event.right_cell.x, event.right_cell.y))
             event.left_cell.right_bisector = new_bisector
             event.right_cell.left_bisector = new_bisector
         else:  # update mid cell information
