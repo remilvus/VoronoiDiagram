@@ -13,7 +13,7 @@ class Voronoi:
         self.output = []  # list of line segment
         self.scenes = []  # list of scenes for visualization
         self.points = []  # for visualization
-        self.current_key = -99999999999
+        self._current_key = -99999999999
         self._eps = 1e-10
 
         self.boundary_events = []
@@ -25,6 +25,7 @@ class Voronoi:
         self.x1 = 1.5
         self.y0 = -1.5
         self.y1 = 1.5
+        self._broom_location = 999
 
         # insert points to site event
         for (x, y) in points:
@@ -47,18 +48,23 @@ class Voronoi:
         self._bisector = lambda a, b: bisector(list(a).copy(), list(b).copy(), [self.x0, self.x1], [self.y0, self.y1])
 
     def _make_scene(self):
+        if not self._broom_location:
+            self._broom_location = -self._current_key
+        if self._broom_location > -self._current_key:
+            self._broom_location = -self._current_key
         points_collection = PointsCollection(self.points)
         line_collection = LinesCollection(self.output.copy())
-        self.scenes.append(Scene([points_collection], [line_collection]))
+        broom = LinesCollection([[[self.x0, self._broom_location], [self.x1, self._broom_location]]], color='red')
+        self.scenes.append(Scene([points_collection], [line_collection, broom]))
 
     # main part
     def process(self):
         while not self.events.empty():
             key, event = self.events.get()
-            self.current_key = key
+            self._current_key = key
             print(f"valid? {event.valid} | event {event.type} at {event.x}, {event.y} | key {event.key} | cells:", end=' ')
             if event.left_cell:
-                print(f"l-({event.left_cell.x},{event.left_cell.y})", end =" ")
+                print(f"l-({event.left_cell.x},{event.left_cell.y})", end=" ")
             if event.right_cell:
                 print(f"r-({event.right_cell.x},{event.right_cell.y})")
             print()
@@ -73,9 +79,10 @@ class Voronoi:
                     self._process_intersection(event)
                 else:
                     raise ValueError
-                self._make_scene()
-        # print()
-        # print(self.output)
+                if event.type == EventTypes.CELL or event.type == EventTypes.INTERSECTION or \
+                        (event.type == EventTypes.BEND and event.segments):
+                    self._make_scene()
+
         self._finish_edges()
         self._make_scene()
 
@@ -138,7 +145,6 @@ class Voronoi:
             return True
         return False
 
-
     @staticmethod
     def _extract_line_part(line, a, b, eps=1e-6):
         newline = []
@@ -176,24 +182,38 @@ class Voronoi:
         else:
             return [(a, b)]
 
-
-    @staticmethod
-    def _segments_from_horizontal(line):  # gets top two segments from line
-        return [Voronoi._get_top_segment(line)]
-
     @staticmethod
     def _get_bottom_end(line):
         return Voronoi._get_lower_point(line[0][0], line[-1][-1])
 
+    # utility method for invalidating events
     @staticmethod
-    def _is_above(a, b):
-        """checks if a is above b"""
-        return a[1] > b[1]
+    def _invalidate_events(key, left_n, right_n, middle):
+        # todo check correctness
+        if left_n.right_event:
+            print(f"old {left_n.right_event.key} new {key}")
+             # assert left_n.right_event.key < key
+            print(f"invalidating {left_n.right_event.type} at {left_n.right_event.x}"
+                  f"{left_n.right_event.y} segments"
+                  f"{left_n.right_event.segments}")
+            left_n.right_event.valid = False
+        if right_n.left_event:
+            print(f"old {right_n.left_event.key} new {key}")
+            print(f"invalidating {right_n.left_event.type} at {right_n.left_event.x}"
+                  f"{right_n.left_event.y} segments"
+                  f"{right_n.left_event.segments}")
+            #  assert right_n.left_event.key < key
+            right_n.left_event.valid = False
+        if middle.left_event:
+            middle.left_event.valid = False
+        if middle.right_event:
+            middle.right_event.valid = False
+
 
     # event processing methods
     def _intersection_to_event(self, key, node, left_n, right_n, intersection):
-        if -key < self.current_key - self._eps:
-            print(f"not adding intersection at {intersection} | key {key} curr_key {self.current_key}")
+        if -key < self._current_key - self._eps:
+            print(f"not adding intersection at {intersection} | key {key} curr_key {self._current_key}")
             return False
 
         if type(node) == RBNode:
@@ -293,7 +313,7 @@ class Voronoi:
                     segments = [self._get_top_segment(line)]
                     #    print(f"seg from horiztonal: {segments}")
                     event_x, event_y = self._get_top_point(line)
-                    key = event.key + 1  # key is above current key -> it will be added to Voronoi diagram in the next step
+                    key = event_y + self._eps  # key is above current key -> it will be added to Voronoi diagram in the next step
                     print(f"adding bend with key = {key}")
                     if is_left:
                         event = Event(event_x, event_y, left_cell=left_n.value, right_cell=node.value,
@@ -313,7 +333,7 @@ class Voronoi:
                 elif LineType.get_type(line) == LineType.VERTICAL_PART:
                     segments = [self._get_top_segment(line)]
                     event_x, event_y = self._get_top_point(line)
-                    key = event_y + 1  # key is above current key -> it will be added to Voronoi diagram in the next step
+                    key = event_y + self._eps  # key is above current key -> it will be added to Voronoi diagram in the next step
                     print(f"adding bend with key = {key}")
 
                     if is_left:
@@ -491,80 +511,13 @@ class Voronoi:
 
     # other
     def _finish_edges(self):
+        self._broom_location = -999999
         for event in self.boundary_events:
             print(
                 f"processing boundary event at {event.x}, {event.y} | valid={event.valid} | segments: {event.segments}")
             if event.valid:
                 self._process_bound(event)
 
-    def _process_line(self, line, cell):
-        events = []
-        line_type = LineType.get_type(line)
-        if line_type == LineType.VERTICAL:  # only one segment
-            pass
-        elif line_type == LineType.HORIZONTAL:
-            pass
-        elif line_type == LineType.VERTICAL_PART:
-            # add top to voronoi
-            line_top = self._get_top_segment(line)
-            self.output.append(line_top)
-            # add bot to events
-            bot_point = self._get_bot_point(line)
-            mid_segment = self._get_mid_segment(line)
-            dist = distance(bot_point, cell)
-            event = Event(x=bot_point[0], y=bot_point[1], point_type=EventTypes.BEND, segment=mid_segment)
-            self.events.put((bot_point[1] - dist, event))
-
-            pass
-        elif line_type == LineType.HORIZONTAL_PART:
-            # add both to voronoi
-            for segment in self._segments_from_horizontal(line):
-                self.output.append(segment)
-            pass
-        elif line_type == LineType.INCLINED:
-            # TODO (low priority)
-            pass
-        else:
-            # should never occur
-            raise AssertionError
-        return event
-
-    def print_output(self):
-        it = 0
-        for o in self.output:
-            it = it + 1
-            p0 = o.CELL
-            p1 = o.end
-            print(p0.x, p0.y, p1.x, p1.y)
-
-    def get_output(self):
-        res = []
-        for o in self.output:
-            p0 = o.CELL
-            p1 = o.end
-            res.append((p0.x, p0.y, p1.x, p1.y))
-        return res
-
-    def _invalidate_events(self, key, left_n, right_n, middle):
-        # todo check correctness
-        if left_n.right_event:
-            print(f"old {left_n.right_event.key} new {key}")
-             # assert left_n.right_event.key < key
-            print(f"invalidating {left_n.right_event.type} at {left_n.right_event.x}"
-                  f"{left_n.right_event.y} segments"
-                  f"{left_n.right_event.segments}")
-            left_n.right_event.valid = False
-        if right_n.left_event:
-            print(f"old {right_n.left_event.key} new {key}")
-            print(f"invalidating {right_n.left_event.type} at {right_n.left_event.x}"
-                  f"{right_n.left_event.y} segments"
-                  f"{right_n.left_event.segments}")
-            #  assert right_n.left_event.key < key
-            right_n.left_event.valid = False
-        if middle.left_event:
-            middle.left_event.valid = False
-        if middle.right_event:
-            middle.right_event.valid = False
 
 
 def get_points():
@@ -580,7 +533,6 @@ def get_points():
 
 if __name__ == "__main__":
     points = get_points()
-    #points = [[0.4, 0.5], [0.5, 0.5]]
     voronoi = Voronoi(points)
     voronoi.process()
     plot = PlotSecond(voronoi.scenes)
