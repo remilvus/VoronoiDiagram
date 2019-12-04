@@ -167,9 +167,6 @@ def bisector(A, B, rangeX=[0, 1], rangeY=[0, 1]):
             return [[leftPoint, rightPoint]]
 
 
-# def cross(bis1, bis2):
-#     cross_original(list_to_bis(bis1), list_to_bis(bis2))
-
 def cross(bis1, bis2):
     for each in bis1:
         for i in bis2:
@@ -182,6 +179,3 @@ def cross(bis1, bis2):
 
 def bis_to_list(bis):
     return [bis[0][0]] + [segment[1] for segment in bis]
-
-# def list_to_bis(line):
-#     return [[line[0], line[1]], [line[1], line[2]], [line[2], line[3]]]
