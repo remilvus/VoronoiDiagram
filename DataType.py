@@ -55,13 +55,13 @@ class Cell:
     # self.left_bisector = None
     # self.right_bisector = None
 
-class Point:  # May be useless
-    x = 0.0
-    y = 0.0
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+# class Point:  # May be useless
+#     x = 0.0
+#     y = 0.0
+#
+#     def __init__(self, x, y):
+#         self.x = x
+#         self.y = y
 
 
 class Event:
@@ -93,17 +93,17 @@ class Event:
     def __eq__(self, other):
         return  self.x == other.y
 
-class Segment: #Nice
-    start = None
-    end = None
-    done = False
-
-    def __init__(self, p):
-        self.CELL = p
-        self.end = None
-        self.done = False
-
-    def finish(self, p):
-        if self.done: return
-        self.end = p
-        self.done = True
+# class Segment: #Nice
+#     start = None
+#     end = None
+#     done = False
+#
+#     def __init__(self, p):
+#         self.CELL = p
+#         self.end = None
+#         self.done = False
+#
+#     def finish(self, p):
+#         if self.done: return
+#         self.end = p
+#         self.done = True
