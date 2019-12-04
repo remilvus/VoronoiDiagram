@@ -47,7 +47,7 @@ class Voronoi:
 
         self._bisector = lambda a, b: bisector(list(a).copy(), list(b).copy(), [self.x0, self.x1], [self.y0, self.y1])
 
-    def _make_scene(self):
+    def _make_scene(self, key, event):
         if not self._broom_location:
             self._broom_location = -self._current_key
         if self._broom_location > -self._current_key:
@@ -55,7 +55,9 @@ class Voronoi:
         points_collection = PointsCollection(self.points)
         line_collection = LinesCollection(self.output.copy())
         broom = LinesCollection([[[self.x0, self._broom_location], [self.x1, self._broom_location]]], color='red')
-        self.scenes.append(Scene([points_collection], [line_collection, broom]))
+        # PointsCollection(event,color='red')
+        point=[event.x,event.y]
+        self.scenes.append(Scene([points_collection, PointsCollection([point], color='orange')], [line_collection, broom]))
 
     # main part
     def process(self):
@@ -81,10 +83,11 @@ class Voronoi:
                     raise ValueError
                 if event.type == EventTypes.CELL or event.type == EventTypes.INTERSECTION or \
                         (event.type == EventTypes.BEND and event.segments):
-                    self._make_scene()
+
+                    self._make_scene(key, event)
 
         self._finish_edges()
-        self._make_scene()
+        self._make_scene(key, event)
 
     # utility functions for line processing
     @staticmethod
