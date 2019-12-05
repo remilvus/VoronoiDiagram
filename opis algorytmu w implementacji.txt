@@ -1,0 +1,18 @@
+wrzuæ to jako 2 slajdy opisu algorytmyu
+
+Zmiana metryki znacz¹co skomplikowa³a zagadnienia geometryczne
+Algorytm Fortuny dzia³a od eventu do eventu – co z tym idzie nie wymaga przechowywania parabol, a jedynie umieszczania punktów w kolejce priorytetowej z odpowiednim kluczem
+Symetralne w metryce maximum sk³adaj¹ siê z dwóch pó³prostych i odcinka, lub w szczególnych przypadkach jednej prostej. Zmienia to znacz¹co wygl¹d wieloboków. 
+W celach implementacyjnych musieliœmy dodaæ granice (ramkê) okalaj¹c¹ punkty i ograniczaj¹c¹ proste i pó³proste
+S¹ 4 rodzaje eventów (œrodek komórki, za³amanie symetralnej(koñcówka pocz¹tek odcinka), przeciêcie symetralnych, spotkanie z granic¹ obszaru)
+œrodek komórki – nowy œrodek komórki zostaje dodany do zbioru aktywnych komórek oraz obliczane s¹ symetralne punktu i œrodków komórek s¹siednich. 
+za³amanie symetralnej – obliczony zostaje punkt przeciêcia z symetralnymi le¿¹cymi po przeciwnych stronach punktów wyznaczaj¹cych rozwa¿an¹ symetraln¹, do kolejki eventów dodane zostaj¹ punkty przeciêcia i/lub spotkania z granic¹ obszaru.
+przeciêcie symetralnych – sprwadzone zostaje czy nale¿y usun¹æ œrodkow¹ z komórek wyznaczaj¹cych punkt przeciêcia i je¿eli tak to jest ona usuwana. W miejscu przeciêcia ostaj¹ dodane dwa zdarzenia bêd¹ce za³amaniami symetralnej (lub 1 zdarzenie je¿eli jedna z komórek zosta³a usuniêta ze zbioru aktywnych komórek)
+spotkanie z granic¹ obszaru – dodaje linie dochodz¹ce do granicy rozwa¿anego obszaru do diagramu Voronoi.
+
+
+
+slajd "opis wykorzystywanych struktór"
+Drzewo czerwono-czarne w celu oznaczania eventów jako nieaktywnych, implementuj¹ce funkcje:
+->
+Drzewo czerwono-czarne w celu wydajnego dostêpu do komórek (znajdywanie s¹siadów) i zwi¹zanych z nimi eventów, implementuj¹ce funkcje:
