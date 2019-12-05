@@ -164,8 +164,6 @@ class Voronoi:
                 print(f"({s:.02f},{e:.02f})-", end=" ")
         print()
         for segment in line:
-            print(not started, Voronoi._is_in_segment(segment, a, eps)
-                    , not same_point(a, segment[1], eps), not Voronoi._is_in_segment(segment, b, eps))
             if (not started and Voronoi._is_in_segment(segment, a, eps)
                     and not same_point(a, segment[1], eps) and not Voronoi._is_in_segment(segment, b, eps)):
                 if abs(a[0] - b[0]) < eps:
@@ -525,6 +523,8 @@ class Voronoi:
                 mid_cell = event.left_cell  # mid cell is on top of the circle
                 left_cell_key = self.active_cells.predecessor(event.left_cell.x)
                 left_cell = self.active_cells.findNode(left_cell_key).value
+                if eq(event.right_cell.y, left_cell.y, self._eps):
+                    intersection = (left_cell.x + (event.right_cell.x-left_cell.x)/2, intersection[1])
                 d = distance(intersection, (mid_cell.x, mid_cell.y))
                 key = intersection[1] - d
                 added = self._intersection_to_event(key, mid_cell, left_cell, event.right_cell, intersection)
@@ -535,11 +535,15 @@ class Voronoi:
             if intersection and not same_point(intersection, (event.x, event.y)) and \
                     (intersection[1] < event.right_cell.right_point_used[1] - self._eps or
                      intersection[1] < event.right_cell.left_point_used[1] - self._eps):
+                if eq(event.left_cell.y, event.right_cell.y, self._eps):
+                    intersection = (event.left_cell.x + (event.right_cell.x-event.left_cell.x)/2, intersection[1])
                 print(f"bend event: (right) intersection found at {intersection}")
                 print(f"left point used: {event.right_cell.left_point_used} right: {event.right_cell.right_point_used}")
                 mid_cell = event.right_cell
                 right_cell_key = self.active_cells.successor(event.right_cell.x)
                 right_cell = self.active_cells.findNode(right_cell_key).value
+                if eq(event.left_cell.y, right_cell.y, self._eps):
+                    intersection = (event.left_cell.x + (event.left_cell.x-right_cell.x)/2, intersection[1])
                 d = distance(intersection, (mid_cell.x, mid_cell.y))
                 key = intersection[1] - d
                 added = self._intersection_to_event(key, mid_cell, event.left_cell, right_cell, intersection)
