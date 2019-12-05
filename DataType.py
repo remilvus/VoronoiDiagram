@@ -9,6 +9,7 @@ class EventTypes(Enum):
     INTERSECTION = 2
     BOUNDARY = 3
 
+
 class LineType(Enum):
     HORIZONTAL = 0
     VERTICAL = 1
@@ -28,6 +29,7 @@ class LineType(Enum):
             if line[1][0][1] == line[1][1][1]:
                 return LineType.HORIZONTAL_PART
             return LineType.VERTICAL_PART
+
 
 class Cell:
     x = 0.0
@@ -50,28 +52,14 @@ class Cell:
         self.right_event = right_event
         self.left_event = left_event
 
-    # def to_string(self):
-    #     return f"x = {self.x} | y = {self.y}
-    # self.left_bisector = None
-    # self.right_bisector = None
-
-# class Point:  # May be useless
-#     x = 0.0
-#     y = 0.0
-#
-#     def __init__(self, x, y):
-#         self.x = x
-#         self.y = y
-
-
 class Event:
     y = 0.0
     x = 0.0
     type = None
-    valid = True  # It its not useless
+    valid = True
     right_cell = None
     left_cell = None
-    segments = None  # line part which must be added
+    segments = None  # line parts which can be added to diagram
     key = None
 
     def __init__(self, x, y, point_type, right_cell=None, left_cell=None, segments=None, key=None):
@@ -92,18 +80,3 @@ class Event:
 
     def __eq__(self, other):
         return  self.x == other.y
-
-# class Segment: #Nice
-#     start = None
-#     end = None
-#     done = False
-#
-#     def __init__(self, p):
-#         self.CELL = p
-#         self.end = None
-#         self.done = False
-#
-#     def finish(self, p):
-#         if self.done: return
-#         self.end = p
-#         self.done = True
