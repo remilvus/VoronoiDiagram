@@ -14,7 +14,7 @@ class Voronoi:
         self.scenes = []  # list of scenes for visualization
         self.points = []  # for visualization
         self._current_key = -99999999999
-        self._eps = 1e-10
+        self._eps = 1e-7
 
         self.boundary_events = []
         self.events = PriorityQueue()
@@ -230,7 +230,10 @@ class Voronoi:
         # print("intersection to event extracting segments")
         segments = self._extract_line_part(left_n.right_bisector, left_n.right_point_used, intersection)
         d = distance(intersection, (node.x, node.y))
-        if eq(intersection[1] + d, node.y, self._eps):  # node is on the top of a circle
+        if eq(intersection[1] + d, node.y, self._eps) or \
+                eq(left_n.x, node.x, self._eps) or eq(right_n.x, node.x, self._eps):
+            # node is on the top of a circle or is above one of the other points
+
             segments += self._extract_line_part(right_n.left_bisector, right_n.left_point_used, intersection)
         # print(f"segments: {segments}")
         event = Event(intersection[0], intersection[1], left_cell=left_n, right_cell=right_n,
@@ -245,7 +248,7 @@ class Voronoi:
     def _process_cell(self, event):
         node = self.active_cells.findNode(event.x)
         if node:  # adding exactly below active cell point (rare)
-            event.x += self._eps
+            event.x += self._eps / 10
 
         node = self.active_cells.insert(event.x)
         node.value = Cell(event.x, event.y)
@@ -357,30 +360,63 @@ class Voronoi:
                         node.value.right_event = event
                         right_n.value.left_event = event
                     self.events.put((-key, event))
-                else: # line consisting of only one segment
+                elif LineType.get_type(line) != LineType.HORIZONTAL: # line consisting of only one segment
                     segment = line[0]
                     top_point = self._get_higher_point(segment[0], segment[1])
                     event = Event(0, 0, point_type=EventTypes.BOUNDARY, segments=line)
                     self.boundary_events.append(event)
                     if left_n:
-                        left_n.right_event = event
+                        left_n.value.right_event = event
+                        left_n.value.right_point_used = top_point
                         node.value.left_event = event
                         node.value.left_point_used = top_point
                     elif right_n:
-                        right_n.left_event = event
+                        right_n.value.left_event = event
+                        right_n.value.left_point_used = top_point
                         node.value.right_event = event
                         node.value.right_point_used = top_point
-
-
+                else: # line is horizontal
+                    line_left = line_right = line
+                    if is_left:
+                        d = distance((left_n.value.x, left_n.value.y), (event.x, event.y)) / 2
+                        used_point = (event.x + d, event.y + d)
+                        event_left = Event(used_point[0], used_point[1], point_type=EventTypes.BEND, segments=[],
+                                           left_cell=left_n.value, right_cell=node.value, key=event.key)
+                        event_right = Event(used_point[0], used_point[1], point_type=EventTypes.BEND, segments=[],
+                                            left_cell=node.value, right_cell=None, key=event.key)
+                        left_n.value.right_event = event_left
+                        left_n.value.right_point_used = used_point
+                        node.value.left_event = event_left
+                        node.value.right_event = event_right
+                        node.value.left_point_used = used_point
+                        node.value.right_point_used = used_point
+                    else:
+                        # bisector on the right
+                        d = distance((left_n.value.x, left_n.value.y), (event.x, event.y)) / 2
+                        used_point = (event.x - d, event.y + d)
+                        event_left = Event(used_point[0], used_point[1], point_type=EventTypes.BEND, segments=[],
+                                           left_cell=None, right_cell=node.value, key=event.key)
+                        event_right = Event(used_point[0], used_point[1], point_type=EventTypes.BEND, segments=[],
+                                            left_cell=node.value, right_cell=right_n.value, key=event.key)
+                        right_n.value.left_event = event_right
+                        right_n.value.left_point_used = used_point
+                        node.value.left_event = event_left
+                        node.value.right_event = event_right
+                        node.value.left_point_used = used_point
+                        node.value.right_point_used = used_point
+                    self.events.put((-event.key, event_left))
+                    self.events.put((-event.key, event_right))
         # update bisectors and events in tree nodes
         if line_left:
             # print(f"update {left_n.value}")
-            left_n.value.right_bisector = line_left
+            if left_n:
+                left_n.value.right_bisector = line_left
             node.value.left_bisector = line_left
         if line_right:
             # print(f"update {right_n.value}")
             node.value.right_bisector = line_right
-            right_n.value.left_bisector = line_right
+            if right_n:
+                right_n.value.left_bisector = line_right
 
     def _process_intersection(self, event):
         for segment in event.segments:
@@ -399,7 +435,8 @@ class Voronoi:
         # deleting cell from active cells if it's on top of the circle
         mid_delete = False
         d = distance(intersection, (mid_cell.x, mid_cell.y))
-        if eq(intersection[1] + d, mid_cell.y, self._eps):
+        if eq(intersection[1] + d, mid_cell.y, self._eps) or eq(mid_cell.x, event.left_cell.x, self._eps) or\
+                eq(mid_cell.x, event.right_cell.x, self._eps):
             mid_delete = True
 
         for (line, is_left) in zip([left_bisector, right_bisector], [True, False]):
@@ -463,12 +500,19 @@ class Voronoi:
             self.output.append(segment)
 
         # update info
-        event.left_cell.right_point_used = (event.x, event.y)
-        event.right_cell.left_point_used = (event.x, event.y)
+        if event.left_cell:
+            event.left_cell.right_point_used = (event.x, event.y)
+        if event.right_cell:
+            event.right_cell.left_point_used = (event.x, event.y)
 
-        line_left = event.left_cell.left_bisector
-        line_right = event.right_cell.right_bisector
-        event_line = event.left_cell.right_bisector
+        line_left = line_right = None
+        if event.left_cell:
+            line_left = event.left_cell.left_bisector
+            event_line = event.left_cell.right_bisector
+        if event.right_cell:
+            line_right = event.right_cell.right_bisector
+            event_line = event.right_cell.left_bisector
+
         print(f"bend lines: \n left: {line_left} \n mid: {event_line} \n right: {line_right}")
         add_boundary = True
         if line_left:
@@ -490,7 +534,7 @@ class Voronoi:
             intersection = cross(line_right, event_line)
             if intersection and not same_point(intersection, (event.x, event.y)) and \
                     (intersection[1] < event.right_cell.right_point_used[1] - self._eps or
-                    intersection[1] < event.right_cell.left_point_used[1] - self._eps):
+                     intersection[1] < event.right_cell.left_point_used[1] - self._eps):
                 print(f"bend event: (right) intersection found at {intersection}")
                 print(f"left point used: {event.right_cell.left_point_used} right: {event.right_cell.right_point_used}")
                 mid_cell = event.right_cell
@@ -502,13 +546,28 @@ class Voronoi:
                 if added:
                     add_boundary = False
         if add_boundary:
-            endpoint = self._get_bottom_end(event_line)
-            print(f"bend add bound endpoint: {endpoint} | line: {event_line}")
-            segments = self._extract_line_part(event_line, endpoint, event.right_cell.left_point_used)
-            print(f"add bound | line {event_line} | a {endpoint} | b {event.right_cell.left_point_used}")
-            new_event = Event(0, 0, point_type=EventTypes.BOUNDARY, segments=segments, key=-99999)
-            event.left_cell.right_event = new_event
-            event.right_cell.left_event = new_event
+            if event.right_cell and event.left_cell:
+                endpoint = self._get_bottom_end(event_line)
+                print(f"bend add bound endpoint: {endpoint} | line: {event_line}")
+                segments = self._extract_line_part(event_line, endpoint, event.right_cell.left_point_used)
+                print(f"add bound | line {event_line} | a {endpoint} | b {event.right_cell.left_point_used}")
+                new_event = Event(0, 0, point_type=EventTypes.BOUNDARY, segments=segments, key=-99999)
+                event.left_cell.right_event = new_event
+                event.right_cell.left_event = new_event
+            elif event.left_cell:
+                endpoint = event_line[0][1]
+                print(f"bend add bound endpoint: {endpoint} | line: {event_line}")
+                segments = self._extract_line_part(event_line, endpoint, event.left_cell.right_point_used)
+                print(f"add bound | line {event_line} | a {endpoint} | b {event.left_cell.right_point_used}")
+                new_event = Event(0, 0, point_type=EventTypes.BOUNDARY, segments=segments, key=-99999)
+                event.left_cell.right_event = new_event
+            else: # event.right_cell
+                endpoint = event_line[0][0]
+                print(f"bend add bound endpoint: {endpoint} | line: {event_line}")
+                segments = self._extract_line_part(event_line, endpoint, event.right_cell.left_point_used)
+                print(f"add bound | line {event_line} | a {endpoint} | b {event.right_cell.left_point_used}")
+                new_event = Event(0, 0, point_type=EventTypes.BOUNDARY, segments=segments, key=-99999)
+                event.right_cell.left_event = new_event
             self.boundary_events.append(new_event)
 
     def _process_bound(self, event):
