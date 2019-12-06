@@ -1,8 +1,16 @@
 Kod algorytmu:
-
+VoronoiCalculator (plik główny i wykonywalny)
+MaxMetric
+Plot
+RBTree
+DataType
 
 Dokumentacja:
 Dokumentacja.pdf
+
 Prezentacja:
 Prezentacja.pdf
-PrezentacjaLight.pdf (prosta oprawa graficzna)
+Prezentacja_Light.pdf (prosta oprawa graficzna)
+Prezentacja_z_Video (wraz z video prezentującym działanie programu)
+100Punktów (wideo zawarte również w powyższej prezentacji)
+
