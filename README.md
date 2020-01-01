@@ -11,5 +11,7 @@ Program generates a Voronoi diagram for a given set of points using [Fortune's a
  4. A plot showing every step of the algorithm will be opened
  
  ### Example
+ ###### Input data
  ![plot with points](https://github.com/remilvus/VoronoiDiagram/blob/master/points.png "Input data")
+ ###### Output
  ![plot with points and Voroni diagram](https://github.com/remilvus/VoronoiDiagram/blob/master/diagram.png "Output")
